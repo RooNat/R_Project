@@ -1,0 +1,100 @@
+---
+title: "Lecture252627_Practice"
+author: "YujieWang"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+```
+
+```{r}
+peng_total<-penguins%>%
+  filter(species!="Chinstrap")%>%
+  select(species,body_mass_g,flipper_length_mm)%>%
+  drop_na()%>%
+  mutate(species=as.numeric(species=="Adelie"))
+peng_total
+#ggplot(data=peng_AG)+geom_density(aes(x=flipper_length_mm))+xlab("flipper length")+ylab("Density")+theme_bw()
+#ggplot(data=peng_AG)+geom_density(aes(x=flipper_length_mm,color=species))+xlab("flipper length")+ylab("Density")+theme_bw()
+```
+```{r}
+num_total<-peng_total%>%nrow() # number of penguin data
+num_train<-floor(num_total*0.75) #number of train examples
+num_test<-num_total-num_train #number of test samples
+
+set.seed(1) # set random seed for reproducibility
+test_inds<-sample(seq(num_total),num_test) # random sample of test indicies
+train_inds<-setdiff(seq(num_total),test_inds) # training data indicies
+
+peng_train<-peng_total%>%filter(row_number() %in% train_inds) #train data
+peng_test<-peng_total%>%filter(row_number() %in% test_inds) #test data
+```
+
+```{r}
+peng_train_x<-peng_train%>%select(-species) #train feature vectors
+peng_train_y<-peng_train%>%pull(species) #train labels
+
+peng_test_x<-peng_test%>%select(-species) # test feature vector
+peng_test_y<-peng_test%>%pull(species) #test labels
+```
+
+```{r}
+library(glmnet) 
+logistic_model<-glmnet(x=peng_train_x%>%as.matrix(),
+                       y=peng_train_y,family="binomial",
+                       alpha=0,lambda=0) #train a logistic model
+```
+
+
+```{r}
+logistic_train_predicted_y<-predict(logistic_model,peng_train_x%>%
+                                      as.matrix(),type="class")%>%as.integer()
+logistic_train_error<-mean(abs(logistic_train_predicted_y-peng_train_y)) #train error
+logistic_train_error
+```
+
+```{r}
+logistic_test_predicted_y<-predict(logistic_model,peng_test_x%>%
+                                     as.matrix(),type="class")%>%as.integer()
+
+logistic_test_error<-mean(abs(logistic_test_predicted_y-peng_test_y)) #test error
+
+logistic_test_error
+```
+
+
+
+
+```{r}
+lda_model<-MASS::lda(species ~.,data=peng_train) # fit LDA model
+```
+
+```{r}
+lda_model
+```
+
+```{r}
+lda_train_predicted_y<-predict(lda_model,peng_train_x)$class%>%
+  as.character()%>%as.numeric() #get vector of predicted ys
+
+lda_train_error<-mean(abs(lda_train_predicted_y-peng_train_y)) #compute train error
+lda_train_error
+```
+
+```{r}
+lda_test_predicted_y<-predict(lda_model,peng_test_x)$class%>%
+  as.character()%>%as.numeric() #get vector of predicted ys
+
+lda_test_error<-mean(abs(lda_test_predicted_y-peng_test_y)) #compute train error
+lda_test_error
+```
+
+
+
+```{r}
+log(exp(3))
+```
+

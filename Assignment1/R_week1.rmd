@@ -1,0 +1,239 @@
+---
+title: "R Notebook"
+output:
+  pdf_document: default
+  word_document: default
+  html_document:
+    df_print: paged
+---
+
+## Vector
+
+```{r}
+x<-c(3,7,4,2,1,2,-4,-5)
+x
+```
+
+```{r}
+y<-seq(5) #generate a sequence
+y
+```
+
+```{r}
+x[3] #access a element of a vector
+```
+
+```{r}
+x[c(2,3)]
+```
+
+```{r}
+x[1:4]   #access the first four element like this
+```
+
+```{r}
+z<-c("Bristol","Bath","London")   #a vector of strings
+z
+```
+
+```{r}
+w<-c(TRUE,FALSE,TRUE,FALSE)  #a vector of Booleans
+w
+```
+
+```{r}
+a<-c(TRUE,3,"Bristol")   #You can't have a vector of mixed type!!!!
+a
+#they are all characters
+```
+
+-   查看vector的type
+
+```{r}
+mode(a)  # You can test the type like this
+```
+
+## 创建矩阵Matrix
+
+```{r}
+M<-matrix(seq(10),2,5)
+M
+#generate a 2 by 5 matrix
+```
+
+```{r}
+M[2,3] #The third element of the second row
+```
+
+```{r}
+M[,4] #or we can inspect the entire four column
+```
+
+-   判断是否是vector的类型
+
+```{r}
+is.vector(M[2,]) # we can check that a selected row or column is a vector
+```
+
+## Lists
+
+```{r}
+first_list<-list(TRUE,3,"Bristol")  # be different from vector, lists can be of mixed type
+first_list
+```
+
+```{r}
+second_list<-list(t_value=TRUE,num_value=3,city="Bristol") #lists members can be named like a dictionary
+second_list$t_value
+```
+
+```{r}
+second_list$num_value
+```
+
+```{r}
+second_list$city
+```
+
+## Data frames 
+
+Data frames are powerful objects for representing and manipulating **tabular data**
+
+```{r}
+city_name<-c("Bristol","Manchester","Birmingham","London")
+population<-c(0.5,0.5,1,9)
+first_data_frame<-data.frame(city_name,population)
+first_data_frame
+```
+
+Unlike matrices,in data frames,
+
+-   columns are named
+
+-   different columns may be of different type
+
+However,the cells within a column must be of the same type
+
+## Arithmetic operations
+
+```{r}
+((4+2-1)*4/2)^2
+```
+
+```{r}
+#在sample中，replace=TRUE代表一个样本可以出现好几次
+a<-matrix(sample(1:10,6,replace=T),2,3) #a random 2 by 3 matrix
+a
+b<-matrix(sample(1:10,6,replace=T),2,3)
+b
+a*b
+```
+
+```{r}
+a%*%t(b)
+# t(b) computes the transpose of b
+#%*% performs matrix multiplication
+```
+
+## Boolean operations
+
+**NOT(complement)** **AND(conjunction)** **OR(disjunction)** **XOR(exclusive disjunction)**
+
+```{r}
+a<-c(TRUE,TRUE,FALSE,FALSE)
+b<-c(TRUE,FALSE,TRUE,FALSE)
+!a #not a
+```
+
+```{r}
+a&b # a and b
+```
+
+```{r}
+a|b # the inclusive or between a and b
+```
+
+-   异或运算：值不相等时为真
+
+```{r}
+xor(a,b) # the exclusive or between a and b
+```
+
+## Define a function
+
+```{r}
+is_prime<-function(num){
+  stopifnot(is.numeric(num),num%%1==0,num>0)
+
+  t_val<-TRUE
+
+  if(num<2){
+    t_val<-FALSE
+  }else if(num>2){
+    for(i in 2:sqrt(num)){
+        if(num%%i==0){
+            t_val<-FALSE
+            break
+        }
+    }
+  }
+  return(t_val)
+}
+is_prime(39)
+
+```
+
+## Call-by-value semantics
+
+In R, arguments in functions are passed with call-by-value semantics.
+
+The value of a variable, but not its address, is passed to the function
+
+```{r}
+a<-seq(5,2)
+demo_func_1<-function(x){
+  x[2]<- -10
+  print(x)
+}
+demo_func_1(a)
+```
+
+```{r}
+a # Note that the value of a is unchanged
+```
+
+This facilitates a functional programming style with limited side effects
+
+## Lazy evaluation
+
+In lazy evaluation, a symbol can be defined (for example, in a function), but it will only be evaluated when it is needed
+
+A more complicated example(**num_to_sub**)
+
+```{r}
+subtraction_function<-function(num_to_sub){
+  output_function<-function(x){
+    return (x-num_to_sub)
+  } #a function with input x and output x minus num_to_sub
+  return (output_function) #output this function
+}
+a<-1 #initialise
+f1<-subtraction_function(a) #construct a function which subtracts
+f1
+print(f1(2))
+```
+
+```{r}
+a<-2 # modify 
+print(f1(2)) #doesn't change the function
+```
+Lazy evaluation enables effciency but has some surprising consequences.
+
+```{r}
+b<-1 #now initialise a new variable b
+f2<-subtraction_function(b)
+b<-2  # modify the value of b
+print(f2(2)) #evaluating the function reveals that the second choice of b was used
+b<-1
+print(f2(2))
+```

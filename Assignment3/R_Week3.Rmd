@@ -1,0 +1,260 @@
+---
+title: "Exploratory data analysis"
+author: "YujieWang"
+date: "`r Sys.Date()`"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Exploratory data analysis
+
+Before performing a formal data analysis process, we can explore it and
+gain a preliminary understanding, by carrying out exploratory data
+analysis: 1) Generate questions about the data 2) Find answers by
+inspecting your data, with modelling and visualisation techniques 3)
+Based on the understanding you gained, generate new questions or refine
+your questions, and go to step 2)
+
+**Typical exploratory data analysis processes:** 1) Understanding the
+meaning and data type of each of the variables aka. features. 2)
+Computing sample statistics (mean, median, variance, etc.) to understand
+the main characteristic of the data 3) Using visualisation to
+efficiently identify the shape of distributions and key relationships
+
+## A taxonomy of data types
+
+**Common data types:** 1) **Continuous**: Data that can take any value
+on an interval e.g. bill length in mm 2) **Discrete**: Data with a
+minimum distance between possible values e.g. year, number of restaurant
+meals in a month 3) **Categorical**: Data that can take on only a
+specific set of values representing distinct categories e.g. brand,
+species, island. 4) **Binary**: Categorical data with exactly two
+categories e.g. pass or fail a driving test. 5) **Ordinal**: Categorical
+data with an ordering e.g. "How was your meal?" on a Likert scale.
+
+## Sample statistics
+
+### 1. Sample mode
+
+```{r}
+library(palmerpenguins)
+library(ggplot2)
+```
+
+```{r}
+library(modeest)
+```
+
+-   take advantages of function *mfv1()*
+
+```{r}
+mfv1(penguins$species)
+```
+
+```{r}
+ggplot(penguins,aes(x=species,fill=species))+geom_bar()
+```
+
+### 2. Sample mean
+
+-   using mean() function
+
+```{r}
+```
+
+```{r}
+rainfall<-c(sample(1:100,size=200,replace=TRUE))
+
+rainfall
+```
+
+```{r}
+rainmean<-mean(rainfall,na.rm=TRUE)
+rainmean
+```
+
+```{r}
+#条形图与直方图不同
+rainfalldata<-data.frame(seq(1:200),rainfall)
+rainfalldata<-rainfalldata%>%rename(Number=seq.1.200.)
+rainfalldata
+barplot(rainfall,seq(1:200))
+ggplot(rainfalldata,aes(x=rainfall))+geom_histogram()
+```
+
+```{r}
+sam<-c(1,2,3,4,10)
+sam
+trimmed_mean<-mean(sam,na.rm=TRUE,trim=0.25)
+trimmed_mean
+```
+
+```{r}
+library(tidyverse)
+library(dplyr)
+flippers<-penguins%>%filter(species=='Adelie')%>%select(flipper_length_mm)%>%unlist()%>%as.vector()
+f_mean<-mean(flippers,na.rm=TRUE)
+f_median<-median(flippers,na.rm=TRUE)
+f_mean_trim<-mean(flippers,na.rm=TRUE,trim=0.05)
+print(paste('mean:',f_mean))
+print(paste('median:',f_median))
+print(paste('trim mean',f_mean_trim))
+```
+
+```{r}
+flippers<-penguins%>%filter(species=='Adelie')%>%select(flipper_length_mm)
+print(flippers$flipper_length_mm)
+f_mean<-mean(flippers$flipper_length_mm,na.rm=TRUE)
+f_median<-median(flippers$flipper_length_mm,na.rm=TRUE)
+f_mean_trim<-mean(flippers$flipper_length_mm,na.rm=TRUE,trim=0.05)
+print(paste('mean:',f_mean))
+print(paste('median:',f_median))
+print(paste('trim mean',f_mean_trim))
+```
+
+```{r}
+# a function for adding arrow & annotation
+vline_w_anno<-function(plot_object,value,linetype,color,y,label){
+  plot_object2<-plot_object+geom_vline(xintercept=value,linetype=linetype,color=color,size=1.5)+
+    geom_curve(x=value+10,xend=value,y=y,yend=y,arrow=arrow(length=unit(0.5,'cm')))+geom_text(x=value+10,y=y,label=label,color=color)
+  return (plot_object2)
+}
+
+penguins_plot<-ggplot(flippers,aes(x=flipper_length_mm))+xlab('Flipper length(mm)')+geom_histogram(binwidth=2)
+
+penguins_plot%>%vline_w_anno(f_mean,'dashed','red',25,'mean')%>%
+  vline_w_anno(f_median,'dotdash','blue',20,'median')%>%
+  vline_w_anno(f_mean_trim,'dotted','purple',15,'trimmed mean')
+```
+
+## Sample quantiles and sample percentiles
+
+```{r}
+probabilities<-c(0.25,0.5,0.75)
+quantiles<-quantile(flippers,probs=probabilities,na.rm=TRUE)
+quantiles
+```
+
+```{r}
+ggplot(tibble(flippers),aes(x=flippers))+
+  theme_bw()+
+  geom_density(adjust=1,size=1)+
+  xlab('Flipper length(mm)')+
+  ylab('Density')+
+  geom_vline(xintercept=quantiles,linetype='dashed',color='blue')+
+  annotate('label',x=quantiles,y=0.0325,size=5,fill='white',label=probabilities)+
+  annotate('label',x=quantiles,y=0.0275,size=5,fill='white',label=quantiles)
+```
+
+## Sample variance and sample standard deviation
+
+```{r}
+# variance
+print(flippers)
+array<-c(1,2,3,4,5,6,10)
+print(array)
+typeof(array)
+a<-seq(10)
+print(array)
+typeof(a)
+var(array)
+
+var(flippers,na.rm=TRUE)
+```
+
+```{r}
+#deviation
+sd(flippers,na.rm=TRUE)
+```
+
+## Sample median absolute deviation
+
+```{r}
+exam<-c(1,3,4,2,5,10,2,3,6)
+mad(exam,na.rm=TRUE)
+```
+
+```{r}
+mad(flippers,na.rm=TRUE)
+```
+
+## Sample range
+
+```{r}
+range(flippers,na.rm=TRUE)
+```
+
+```{r}
+diff(range(flippers,na.rm=TRUE))
+```
+
+## Interquartile range
+
+```{r}
+quantiles=quantile(flippers,prob=c(0.25,0.5,0.75),na.rm=TRUE)
+print(quantiles)
+```
+
+```{r}
+IQR(flippers,na.rm=TRUE)
+```
+
+-   Interquartile range and outliers
+
+```{r}
+quantile25<-quantile(flippers,0.25,na.rm=TRUE)
+quantile75<-quantile(flippers,0.75,na.rm=TRUE)
+iq_range<-IQR(flippers,na.rm=TRUE)
+outliers<-flippers[(flippers>quantile75+1.5*iq_range)|(flippers<quantile25-1.5*iq_range)]
+outliers
+```
+
+## Relating variables via sample covariance and sample correlation
+
+-   covariance
+
+```{r}
+# example
+con1<-c(1,8,4,3,2,4)
+con2<-c(3,2,10,1,4,3)
+print(con1)
+print(con2)
+print(mean(con1))
+print(mean(con2))
+re<-function(x,y){
+  return((x-mean(con1))%*%(y-mean(con2)))
+}
+result<-map2_dbl(con1,con2,re)
+result
+sum_result<-sum(result)
+sum_result/6 #总体协方差
+cov(con1,con2) #样本协方差 区别？
+```
+
+```{r}
+cov(penguins$flipper_length_mm,penguins$bill_length_mm,use='complete.obs')
+#'complete.obs'的含义
+```
+
+-   Sample correlation
+
+```{r}
+cor(penguins$flipper_length_mm,penguins$bill_length_mm,use='complete.obs')
+```
+
+## Understanding box plots
+
+```{r}
+ggplot(data=penguins,aes(x=flipper_length_mm,y=species))+
+  geom_boxplot()+
+  xlab("Flipper length(mm)")+
+  ylab("Penguin species")
+```
+
+## Population,random samples and elementary set theory

@@ -1,0 +1,80 @@
+---
+title: "Object_CLass"
+author: "YujieWang"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## S3 Class
+
+### Define S3 Class
+
+use class()
+```{r}
+s<-list(name="Yujie",number="221755",age="22")
+class(s)<-"student"
+s
+```
+
+### Use constructors to create objects
+
+use the attr() function to set the class atrribute of the object
+
+```{r}
+student<-function(n,a,g){
+  if(g>3||g<0) stop("GPA must be between 0 and 4")
+  value<-list(name=n,age=a,GPA=g)
+  attr(value,"class")<-"student"
+  value
+}
+```
+```{r}
+s<-student("Yujie",22,3)
+s
+```
+
+## S4 Class
+
+### Define S4 Class
+
+```{r}
+setClass("student",slots=list(name="character",age="numeric",GPA="numeric"))
+```
+```{r}
+s<-new("student",name="John",age=21,GPA=3.5)
+s
+```
+
+```{r}
+s@name
+s@age
+s@GPA
+```
+
+```{r}
+s@GPA<-3.7
+s
+```
+
+```{r}
+slot(s,"age")<-30
+s@age
+```
+
+```{r}
+setMethod("show","student",
+          function(object){
+            cat(object@name,"\n")
+            cat(object@age,"years old\n")
+            cat("GPA:",object@GPA,"\n")
+          }
+          )
+```
+```{r}
+s<-new("student",name="John",age=21,GPA=3.5)
+s
+```
+
+### ReferenceClass
+
+

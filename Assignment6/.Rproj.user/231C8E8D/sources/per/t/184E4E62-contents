@@ -1,0 +1,260 @@
+---
+title: "Assignment6_lecture1415"
+author: "YujieWang"
+date: '`r Sys.Date()`'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Lecture14
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+num_trials<-1000000 #set the number of trials
+set.seed(0) #set the random seed
+sample_size<-2 # set the sample size
+sigma<-12/35
+mu<-7/2
+```
+
+
+```{r}
+# simulate the sample average of a dice roll:
+# add columns dice_sample(1...6) and sample_avg(sample average)
+
+dice_sample_average_simulation<-data.frame(trial=1:num_trials)%>% 
+  mutate(dice_sample=map(.x=trial,~sample(6,sample_size,replace=TRUE)))%>%
+  mutate(sample_avg=map_dbl(.x=dice_sample,~(mean(.x))))
+
+print(dice_sample_average_simulation)
+
+# plot a histogram to display the results
+dice_sample_average_simulation%>%
+  ggplot(aes(x=sample_avg))+
+  geom_histogram(aes(y=..count../sum(..count..)),
+                 binwidth=1/sample_size,fill="blue",color="blue")+
+  theme_bw()+xlim(c(-3,3))+
+  xlab("Sample average")+ylab("Proportion")
+
+```
+
+
+
+
+
+```{r}
+set.seed(0)
+num_trials<-1000
+sample_size<-30
+q<-0.3 #True parameter q
+
+#1. create data-frame (trial=1,2,...,num_trials)
+df<-data.frame(trial=seq(num_trials))
+
+#2. generate samples for sequences of Bernoulli random variables
+df<-mutate(df,simulation=map(.x=trial,.f=~rbinom(sample_size,1,q)))
+
+#3. Compute the sample mean
+simulation_df<-mutate(df,sample_mean=map_dbl(.x=simulation,.f=mean))
+
+#4.1 kernel density plot of sample means
+plot_obj<-ggplot()+labs(x="Mean",y="Density")+theme_bw()+
+					geom_density(data=simulation_df,aes(x=sample_mean,color="Sample",linetype="Sample"))
+
+#4.2 vertical line displaying population mean
+plot_obj<-plot_obj+geom_vline(aes(xintercept=q,color="Population",linetype="Population"))
+
+#4.3 legends
+plot_obj+scale_color_manual(name="legend",values=c("Sample"="red","Population"="blue"))+
+scale_linetype_manual(name="Legend",values=c("Sample"="solid","Population"="dashed"))
+```
+```{r}
+# A sequence of samples with sizes varying from 1 and 10000
+
+set.seed(0)
+num_trials_per_sample_size<-10
+max_sample_size<-10000
+q<-0.3 #True parameter q
+
+#1. create a data frame containing all pairs of sample_size and trial
+df<-crossing(trial=seq(num_trials_per_sample_size),
+            sample_size=seq(to=sqrt(max_sample_size),by=0.1)**2)
+
+#2. For each pair,simulate a sequence of Bernoulli random variables
+df<-mutate(df,simulation=pmap(.l=list(trial,sample_size),.f=~rbinom(.y,1,q)))
+
+#3. compute the sample mean of each sequence
+sim_by_n_df<-mutate(df,sample_mean=map_dbl(.x=simulation,.f=mean))
+
+#4.1 scatter plot of sample means (for different sample sizes)
+plot_obj<-ggplot()+labs(x="Sample size",y="Mean")+theme_bw()+
+		geom_point(data=sim_by_n_df,
+          aes(x=sample_size,y=sample_mean,color="Sample",linetype="Sample"),
+          size=0.1)
+
+#4.2 horizontal line displaying population mean
+plot_obj<-plot_obj+
+  geom_hline(aes(yintercept=q,color="Population",linetype="Population"),size=1)
+
+
+#4.3 add legends
+plot_obj+scale_color_manual(name="Legend",values=c("Sample"="blue","Population"="red"))+
+	scale_linetype_manual(name="Legend",values=c("Sample"="dashed","Population"="solid"))+
+	scale_x_sqrt()
+```
+```{r}
+set.seed(0)
+num_trials<-1000
+sample_size<-30
+mu <- 1 #True mu
+sigma_sqr <- 3  #True sigma^2
+
+#1. Create a data frame (trial=1,2,...,num_trials)
+df<- data.frame(trial=seq(num_trials))
+
+#2. generate num_trials sample with rnorm()
+df<- mutate(df,simulation=map(.x=trial,
+                             .f=~rnorm(sample_size,mean=mu,sd=sqrt(sigma_sqr))))
+
+#3. compute the sample variance (estimate sigma^2)
+simulation_df<- mutate(df,sample_var=map_dbl(.x=simulation,.f=var))
+
+#4.1 kernel density plot of sample variance
+plot_obj<- ggplot()+labs(x="Variance",y="Density")+theme_bw()+
+	geom_density(data=simulation_df,aes(x=sample_var,color="Sample",linetype="Sample"))
+
+#4.2 vertical line displaying population mean
+plot_obj<- plot_obj+geom_vline(aes(xintercept=sigma_sqr,
+                                  color="Population",linetype="Population"))
+
+#4.3 add legend
+plot_obj+scale_color_manual(name="Legend",
+                            values=c("Sample"="red","Population"="blue"))+
+	scale_linetype_manual(name="Legend",
+                       values=c("Sample"="solid","Population"="dashed"))
+
+```
+
+## Example2 simulation2
+
+```{r}
+set.seed(0)
+num_trials_per_sample_size<-10
+max_sample_size<-10000
+mu <- 1 #True mu
+sigma_sqr <- 3  # sigma^2
+
+#1. create data frame of all pairs of sample_size and trial
+df<-crossing(trial=seq(num_trials_per_sample_size),
+             sample_size=seq(to=sqrt(max_sample_size),by=0.1)**2)
+
+#2. For each pair,simulate a sequence of Gaussian random variables
+df<-mutate(df,simulation=pmap(.l=list(trial,sample_size),
+                              .f=~rnorm(.y,mean=mu,sd=sqrt(sigma_sqr))))
+
+#3. For each sequence, compute the sample variance
+sim_by_n_df<-mutate(df,sample_var=map_dbl(.x=simulation,.f=var))
+
+#4.1 create a scatter plot of sample variance
+plot_obj<-ggplot()+labs(x="Sample size",y="Variance")+theme_bw()+
+  geom_point(data=sim_by_n_df,
+             aes(x=sample_size,y=sample_var,color="Sample",
+                 linetype="Sample"),size=0.1)
+
+#4.2 add a horizontal line displaying population variance
+plot_obj<-plot_obj+geom_hline(aes(yintercept=sigma_sqr,color="Population",
+                                  linetype="Population"),size=1)
+
+#4.3 add Legends
+plot_obj+
+  scale_color_manual(name="Legend",values=c("Sample"="blue","Population"="red"))+
+  scale_linetype_manual(name="Legend",values=c("Sample"="dashed","Population"="solid"))+
+  scale_x_sqrt()
+
+```
+
+## Example3 simulation1
+
+```{r}
+set.seed(0)
+num_trials_per_sample_size<-10
+max_sample_size<-10000
+theta<-1 #True parameter theta
+
+#1. create data frame consisting of all pairs of sample_size and trial
+df<-crossing(trial=seq(num_trials_per_sample_size),
+             sample_size=seq(to=sqrt(max_sample_size),by=0.1)**2)
+
+#2. for each pair,simulate a sequence of Cauchy random variables
+df<-mutate(df,simulation=pmap(.l=list(trial,sample_size),
+                              .f=~rcauchy(.y,location=theta)))
+
+#3. for each sequence,compute its sample mean
+sim_by_n_df<-mutate(df,sample_mean=map_dbl(.x=simulation,.f=mean))
+
+#4.1 create a scatter plot of sample variance
+plot_obj<-ggplot()+labs(x="Sample size",y="Sample mean")+theme_bw()+
+  geom_point(data=sim_by_n_df,
+             aes(x=sample_size,y=sample_mean,color="Sample",
+                 linetype="Sample"),size=0.1)+ylim(-10,10)
+
+#4.2 add a horizontal line displaying population variance
+plot_obj<-plot_obj+geom_hline(aes(yintercept=theta,color="Theta",
+                                  linetype="Theta"),size=1)
+
+#4.3 add Legends
+plot_obj+
+  scale_color_manual(name="Legend",values=c("Sample"="blue","Theta"="red"))+
+  scale_linetype_manual(name="Legend",values=c("Sample"="dashed","Theta"="solid"))+
+  scale_x_sqrt()
+
+
+```
+
+## Example3 simulation2
+```{r}
+set.seed(0)
+num_trials_per_sample_size<-10
+max_sample_size<-10000
+theta<-1 #True parameter theta
+
+#1. create data frame consisting of all pairs of sample_size and trial
+df<-crossing(trial=seq(num_trials_per_sample_size),
+             sample_size=seq(to=sqrt(max_sample_size),by=0.1)**2)
+
+#2. for each pair,simulate a sequence of Cauchy random variables
+df<-mutate(df,simulation=pmap(.l=list(trial,sample_size),
+                              .f=~rcauchy(.y,location=theta)))
+
+#3. for each sequence,compute its sample median
+sim_by_n_df<-mutate(df,sample_median=map_dbl(.x=simulation,.f=median))
+
+#4.1 create a scatter plot of sample variance
+plot_obj<-ggplot()+labs(x="Sample size",y="Sample median")+theme_bw()+
+  geom_point(data=sim_by_n_df,
+             aes(x=sample_size,y=sample_median,color="Sample",
+                 linetype="Sample"),size=0.1)+ylim(-10,10)
+
+#4.2 add a horizontal line displaying population variance
+plot_obj<-plot_obj+geom_hline(aes(yintercept=theta,color="Theta",
+                                  linetype="Theta"),size=1)
+
+#4.3 add Legends
+plot_obj+
+  scale_color_manual(name="Legend",values=c("Sample"="blue","Theta"="red"))+
+  scale_linetype_manual(name="Legend",values=c("Sample"="dashed","Theta"="solid"))+
+  scale_x_sqrt()
+
+```
+
+

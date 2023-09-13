@@ -1,0 +1,593 @@
+---
+title: "Assignment 6"
+author: "YujieWang"
+date: "2022-11-09"
+output: pdf_document # you can change to other output format if you want
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Load packages
+
+```{r}
+library(tidyverse)
+```
+
+# 1. Continuous random variables and limit laws
+
+## 1.1 Simulating data with the uniform distribution
+
+Suppose that $\alpha,\beta\in [0,1]$ with $\alpha+\beta \leq 1$ and let $X$ be a discrete random variable with distribution supported on {0, 3, 10}. Suppose that $P(X=3)=\alpha$ and $P(X=10)=\beta$, $P(X=0)=1-\alpha-\beta$, and $P(X\notin \{0,3,10\})=0$.
+
+We will use the uniform distribution to simulate data for the discrete random variable $X$. A standard uniformly distributed random variable $U$ is a continuous random variable with probability density function
+
+$$
+p_U(x)=\begin{cases}1 \quad \text{if } x\in [0,1],\\ 0 \quad \text{otherwise.} \end{cases}
+$$
+
+### 1.1 (Q1)
+
+#### Question:
+
+Show that for any pair of numbers $a,b\in R$ with $0 \leq a \leq b \leq 1$, we have $P(U \in [a, b]) = b − a$.
+
+#### Proof:
+
+Recall that $$U$$ is a standard uniformly distributed random variable and a continuous variable with probability density function:
+
+$$
+p_U(x)=\begin{cases}1 \quad \text{if } x\in [0,1],\\ 0 \quad \text{otherwise.} \end{cases}
+$$
+
+In addition, we have the condition that $a,b\in R$ with $0\leq a \leq b\leq1$
+
+Hence, we have:
+
+$$
+P(U\in[a,b])=\int_{a}^{b}p(x)\mathrm{d}x=\int_{a}^{b}1\mathrm{d}x=[x]_{a}^{b}=b-a
+$$
+
+### 1.1 (Q2)
+
+#### Question:
+
+Now, let's consider the discrete random variable $X$ (as defined above) and the case with $\alpha=\beta=0.25$. You can generate a sequence of i.i.d. copies $X_1, X_2, · · · , X_n$ of $X$ as follows:
+
+```{r}
+set.seed(0)
+n<-1000
+sample_X<-data.frame(U=runif(n))%>%
+  mutate(X=case_when(
+    (0<=U)&(U<0.25)~3,
+    (0.25<=U)&(U<0.5)~10,
+    (0.5<=U)&(U<=1)~0))%>%pull(X)
+```
+
+Why does this **sample_X** correspond to a sequence of i.i.d. copies $X_1, X_2,...,X_n$ of $X$ where $P(X = 3) = \alpha$ and $P(X = 10) = \beta$, and $P(X = 0) = 1 − \alpha − \beta$ with $\alpha = \beta = 0.25$? To answer this you may want to explain the distribution of the numbers/entries of **sample_X**, i.e., from which distribution they are drawn?
+
+#### Answer：
+
+I think they are drawn from cumulative distribution function because in the sample_X,there are 1000 numbers and the number 3 accounts for 25%,the number 10 accounts for 25% and the number 0 accounts for 50%,So
+
+$$
+P(X=3)=0.25\\
+P(X=10)=0.25\\
+P(X=0)=0.5
+$$
+
+And, it consists of consists of mutually **independent random\
+variables**
+
+### 1.1 (Q3)
+
+Now create a function called **`sample_X_0310()`** which takes as inputs alpha, beta and n and outputs a sample $X_1, X_2,...,X_n$ of independent copies of $X$ where $P(X = 3) = \alpha$ and $P(X = 10) = \beta$, and $P(X = 0) = 1 − \alpha − \beta$ with $\alpha = \beta = 0.25$.
+
+```{r}
+sample_X_0310<-function(alpha,beta,n){
+  set.seed(0)
+  sample<-data.frame(U=runif(n))%>%
+    mutate(X=case_when(
+      (0<=U)&(U<alpha)~3,
+      (alpha<=U)&(U<alpha+beta)~10,
+      (alpha+beta<=U)&(U<=1)~0))%>%pull(X)
+  return(sample)
+}
+```
+
+### 1.1 (Q4)
+
+#### Questions:
+
+Next take $\alpha = 1/2$ and $\beta = 1/10$, and use your function **`sample_X_0310()`** to create a sample of size $n = 10000$ of the form $X_1, X_2,..., X_n$ consisting of independent copies of $X$. What is the **sample average** of $X_1, X_2,..., X_n$? How does this compare with the theoretical value of $E(X)$ (We have worked on the expression for this expectation in assignment 5 Section 2.1)? Then use your understanding of the **law of large numbers** to explain this behavior.
+
+#### Answers:
+
+```{r}
+alpha<-1/2
+beta<-1/10
+n<-10000
+# sample_average
+sample<-sample_X_0310(alpha,beta,n)
+sample_average<-mean(sample)
+print(paste("The sample average is:",sample_average))
+
+#Expectation
+expectation_x<-3*alpha+10*beta
+print(paste("The E(X) is:",expectation_x))
+```
+
+Based on the conception of law of large numbers:the sample mean approaches the population mean in some sense when the sample size is large.So when n=10000,it is large enough so that the sample mean approaches the expectation.
+
+### 1.1 (Q5)
+
+Based on the sample generated from the last question, compute the **sample variance** of $X_1, X_2,...,X_n$ and compare it with the **population variance** $Var(X)$ (again, the expression of $Var(X)$ has been derived in Assignment 5).
+
+```{r}
+# sample_variance
+sample_variance<-var(sample)
+print(paste("The sample variance is: ",sample_variance))
+
+# variance
+variance<-100*beta+9*alpha-(3*alpha+10*beta)^2
+print(paste("The variance is :",variance))
+```
+
+### 1.1 (Q6)
+
+Now take $n = 100$, $\alpha = 1/10$ and vary $\beta$ in increments of 0.01 from 0 to 9/10 (including 9/10). Create a data frame that has the following four columns. You can use the functions **`mutate`**, **`map`**, and **`map_dbl`** to help you.
+
+1\. The first column is called **`beta`** (contains different $\beta$ values ranging from 0 to 9/10).
+
+2\. The second column is called **`sample_X`** including samples with the corresponding $\beta$ . More specifically, for each value of $\beta$(in one of the rows), create a sample of $X_1, X_2,..., X_n$ consisting of independent copies of $X$, by using your function **`sample_X_0310()`**.
+
+3\. The third column is called **`samplemean`,** which contains sample means of the samples.
+
+4\. The last column is called **`Expectation`**, which contains numerical values of the population mean $E(X)$
+
+(for the corresponding value of $\beta$ in the same row).
+
+```{r}
+alpha<-1/10
+n<-100
+beta<-c(seq(0,9/10,0.01))
+# First column
+sample_data<-data.frame(beta)
+
+#Second column
+sample_data<-sample_data%>%mutate(sample_X=map(.x=beta,~sample_X_0310(alpha,.x,n)))
+
+# Third column
+sample_data<-sample_data%>%mutate(samplemean=map_dbl(.x=sample_X,~mean(.x)))
+
+# Last column
+sample_data<-sample_data%>%mutate(Expectation=map_dbl(.x=beta,~(3*alpha+10*.x)))
+
+print(sample_data)
+```
+
+### 1.1 (Q7)
+
+Create a plot of the sample averages and $E(X)$ as a function of $\beta$
+
+```{r}
+sample_data_tran<-sample_data%>%pivot_longer(c(samplemean,Expectation),names_to='name',values_to='value')
+
+ggplot(sample_data_tran,aes(x=beta,y=value))+xlab("beta")+ylab("value")+geom_point(aes(color=name))
+```
+
+## 1.2 Exponential distribution
+
+Let $\lambda> 0$ be **a positive real number**. An exponential random variable $X$ with rate parameter $\lambda$ is a continuous random variable with density $p_{\lambda}:R\to (0,\infty)$ defined by
+
+$$
+p_{\lambda}(x)=\begin{cases}
+0 \quad &\text{ if } x<0,\\
+\lambda e^{-\lambda x} \quad & \text{ if } x\geq 0.
+\end{cases}
+$$
+
+### 1.2 (Q1)
+
+Prove that $p_{\lambda}$ is a well-defined probability density function. Then derive mathematical expressions for the cumulative distribution function and the quantile function for exponential random variables with parameter $\lambda$
+
+#### Answers：
+
+1.  **Proof：**
+
+    We need to prove that
+
+    $$
+    \int_{-\infty}^{\infty}p_{\lambda}(x)\mathrm{d}x=1
+    $$
+
+    Based on the function $p_{\lambda}(x)$ :
+
+    $$
+    \int_{-\infty}^{\infty}p_{\lambda}(x)\mathrm{d}x=\int_{-\infty}^{0}0\mathrm{d}x+\int_{0}^{\infty}\lambda e^{-\lambda x}\mathrm{d}x\\=
+    \int_{0}^{\infty}\lambda e^{-\lambda x}\mathrm{d}x\\
+    =[-e^{-\lambda x}]_{0}^{\infty}=0-(-1)=1
+    $$
+
+    Hence,$p_\lambda$ is a well-defined probability density function.
+
+2.  **The cumulative distribution function:**
+
+    $$
+    F_X(x)=P(X\leq x)=\int_{0}^{x}\lambda e^{-\lambda z}\mathrm{d}z\\=[-e^{-\lambda z}]_{0}^{x}\\=(-e^{-\lambda x})+1\: when\: x\geq 0
+    $$
+
+    Hence:
+
+    $$
+    F_X(x)=\begin{cases}
+    0 \quad & \text{if }x< 0,\\
+    1-e^{-\lambda x} \quad & \text{if } x\geq 0.
+    \end{cases}
+    $$
+
+3.  **The quantile function:**
+
+    $$
+    \text{If }x\geq 0:
+    \\
+    F_X^{-1}(p):= inf\{x\geq 0: F_X(x)=\int_{0}^{x}\lambda e^{-\lambda z}\mathrm{d}z\geq p\} \\=
+    inf\{x\geq 0: F_X(x)=(-e^{-\lambda x})+1\geq p\}
+    \text{ for } p\in [0,1]
+    $$
+
+    $$
+    \text{If }x<0:\\
+    F_X^{-1}(p)=0
+    $$
+
+### 1.2 (Q2)
+
+Now implement a function called **`my_cdf_exp()`**. The function **`my_cdf_exp()`** should take as input two numbers $x \in R$ and $\lambda > 0$ and output the value of the cumulative distribution function $F_X(x)$ where $X$ is an exponential random variable with rate parameter $\lambda$.
+
+```{r}
+my_cdf_exp<-function(x,lambda){
+  if(x<0){
+    FX=0
+  }
+  else{
+    FX=1-exp(-lambda*x)
+  }
+  return(FX)
+}
+```
+
+Check your function **`my_cdf_exp()`** gives rise to the following output:
+
+```{r}
+lambda<-1/2
+map_dbl(.x=seq(-1,4),.f=~my_cdf_exp(x=.x,lambda=lambda))
+```
+
+Then type **`?pexp`** into your R console to learn more about R's inbuilt cumulative distribution function for the exponential distribution. We can now confirm that our **`my_cdf_exp`** is correct when $\lambda = 1/2$ as follows:
+
+```{r}
+test_inputs<-seq(-1,10,0.1)
+my_cdf_output<-map_dbl(.x=test_inputs,.f=~my_cdf_exp(x=.x,lambda=lambda))
+inbuilt_cdf_ouput<-map_dbl(.x=test_inputs,.f=~pexp(q=.x,rate=lambda))
+all.equal(my_cdf_output,inbuilt_cdf_ouput)
+```
+
+### 1.2 (Q3)
+
+Next implement a function called **`my_quantile_exp()`**. The function **`my_quantile_exp()`** should take as input two arguments $p \in [0, 1]$ and $\lambda> 0$ and output the value of the quantile function $F_X^{−1}(p)$ where $X$ is an exponential random variable with rate parameter $\lambda$.
+
+```{r}
+my_quantile_exp<-function(p,lambda){
+  x<-seq(0,10,0.00001)
+  QFX=min(x[(1-exp(-lambda*x))>=p])
+  return(QFX)
+}
+my_quantile_exp(0.5,0.5)
+```
+
+Once you have implemented your function compare it with R's inbuilt **`qexp`** function using the same procedure as we used above for the cumulative distribution function for inputs $\lambda = 1/2$ and $p \in \{0.01, 0.02,..., 0.99\}$.
+
+Note that you don't need to consider inputs $p \leq 0$ or $p \geq 1$ here.
+
+```{r}
+lambda<-1/2
+test_p<-seq(0,1,0.01)
+my_qdf_output<-round(map_dbl(.x=test_p,.f=~my_quantile_exp(p=.x,lambda=lambda)),4)
+inbuilt_qdf_output<-map_dbl(.x=test_p,.f=~qexp(p=.x,rate=lambda))
+inbuilt_qdf_output<-round(inbuilt_qdf_output ,4)
+all.equal(my_qdf_output,inbuilt_qdf_output)
+```
+
+### 1.2 (Q4)
+
+From the probability density function, derive an expression for the population mean and variance of an exponential random variable $X$ with parameter $\lambda$. You may want to use integration by parts when computing the integrals.
+
+#### Answers:
+
+1.  **Population mean(Expectation)**:
+
+    $$
+    E(X)=\int_{0}^{\infty}xf(x)\mathrm{d}x=\int_{0}^{\infty}\lambda e^{-\lambda x}x\mathrm{d}x\\=[-\dfrac{1}{\lambda}(\lambda x+1)e^{-\lambda x}]_{0}^{\infty}=\dfrac{1}{\lambda}
+    $$
+
+2.  **Variance**:
+
+    $$
+    Var(x)=E(X^2)-[E(X)]^2=\int_{0}^{\infty}x^2\cdot \lambda e^{-\lambda x^2}\mathrm{d}x-(\dfrac{1}{\lambda})^2
+    $$
+
+## 1.3 The Binomial distribution and the central limit theorem
+
+Two important discrete distributions are the **Bernoulli distribution** and the **Binomial distribution.**
+
+We say that a random variable X has Bernoulli distribution with parameter $p \in [0, 1]$ if $P(X = 1) = p$ and $P(X = 0) = 1 − p$. This is often abbreviated as $X \sim B(p)$. Given $n \in \{1, 2, 3,... \}$ and $p \in [0, 1]$, we say that a random variable $Z$ has a Binomial distribution with parameters $n$ and $p$ if $Z = X_1 + ...+ X_n$ for some random variables $\{X_i\}$ where $X_i \sim B(p)$ and $X_1, ... , X_n$ are independent and identically distributed. This is often abbreviated as $Z \sim Binom(n, p)$.
+
+### 1.3 (Q1)
+
+Give an expression for the expectation and variance of $Z \sim Binom(n, p)$. You may want to make use of the following two useful facts:
+
+1.  Given any sequence of random variables $W_1,... , W_k$ we have $E(\sum_{i=1}^{k}W_i)=\sum_{i=1}^k E(W_i)$.
+2.  Given independent random variables $W_1,... , W_k$ we have $Var(\sum_{i=1}^{k}W_i)=\sum_{i=1}^k Var(W_i)$.
+
+Note that the second fact may not hold if $W_1,... , W_k$ are not independent.
+
+#### Answers:
+
+1.  Expectation:
+
+    $$
+    E(\sum_{i=1}^{k}W_i)=\sum_{i=1}^{k}(E(W_i))=np
+    $$
+
+2.  Variance:
+
+    $$
+    Var(\sum_{i=1}^{k}W_i)=Var(W_1)+...+Var(W_n)=np\cdot(p-1)
+    $$
+
+### 1.3 (Q2)
+
+The function `dbinom()` in R allows us to compute the probability mass function of a Binomial random variable $Z \sim Binom(n, p)$. For $x \in {0, 1, · · · , n}$, the function `dbinom(x,size=n,prob=p)` will return the value of the probability mass function evaluated at x, i.e., it returns $p_z(x) = P(Z = x)$. You can run ?`dbinom` in the R console to find out more.
+
+Consider the case where $n = 50$ and $p = 7/10$. Use the `dbinom()` to generate a data-frame called `binom_df` with two columns called **`x`** and **`pmf`**.
+
+1.  The first column contains the numbers {0, 1, · · · , 50} inclusive. These are different values of x.
+
+2.  The second column gives the corresponding value of the probability mass function $p_z(x) = P(Z = x)$ with $Z \sim Binom(50, 0.7)$. Use the `head()` function to observe the first 3 rows of your data frame.
+
+    ```{r}
+    n<-50
+    p<-7/10
+    binom_df<-data.frame(x=seq(0,n))
+    binom_df<-binom_df%>%
+      mutate(pmf=map_dbl(.x=x,~dbinom(.x,n,p)))
+    print(head(binom_df,3))
+    ```
+
+### 1.3 (Q3)
+
+The function **`dnorm()`** in R allows us to compute the probability density function of a Gaussian random variable $W \sim N (\mu,\sigma^2)$ with expectation $\mu$ and variance $\sigma^2$. The function **`dnorm(x,mean=mu,sd=sigma)`** will return the probability density function evaluated at $x$, i.e., $f_W (x)$ for $W \sim N (\mu,\sigma^2)$. You can run **`?dnorm`** in the R console to find out more.
+
+We shall consider a case where $\mu = 50 \cdot 0.7$ and $\sigma = \sqrt{50 \cdot 0.7 \cdot(1 − 0.7)}$. Use the **`dnorm()`** to generate a data-frame called **`gaussian_df`** with two columns called **`x`** and **`pdf`**.
+
+1.  The first column contains the numbers $0, 0.01, 0.02,..., 50$. These numbers represent different values of $x$.
+
+2.  The second column gives the corresponding value of the probability density function $f_W (x)$ with $W \sim N (\mu, \sigma^2)$. Use the **`head()`** function to observe the first 3 rows as your data frame.
+
+    ```{r}
+    mu<-n*p
+    sigma<-sqrt(n*p*(1-p))
+    gaussian_df<-data.frame(x=seq(0,50,0.01))
+    gaussian_df<-gaussian_df%>%
+      mutate(pdf=map_dbl(.x=x,~dnorm(.x,mu,sigma)))
+    print(head(gaussian_df,3))
+    ```
+
+### 1.3 (Q4)
+
+Next, based on the **`binom_df`** and **`gaussian_df`** you generated above, use the following code to create a plot which compares the probability density for your Gaussian distribution $W \sim N (\mu, \sigma^2)$ where $\mu = n \cdot p$ and $\sigma = \sqrt{ n \cdot p \cdot (1 − p)}$ and the probability mass function for your Binomial distribution $Z \sim Binom(n, p)$. Try to use the central limit theorem to explain the results you observe.
+
+```{r}
+colors<-c("Gaussian pdf"="red", "Binomial pmf"="blue")
+fill<-c("Gaussian pdf"="white", "Binomial pmf"="white")
+ggplot() + labs(x="x",y="Probability") + theme_bw() +
+# create plot of Gaussian density
+geom_line(data=gaussian_df, aes(x,y=pdf,color="Gaussian pdf"),size=2) +
+# create a bar chart from PMF of Binomial distribution
+geom_col(data=binom_df, aes(x=x,y=pmf, color="Binomial pmf",fill="Binomial pmf")) +
+# set color
+scale_color_manual(name = "myLegend", values=colors) +
+scale_fill_manual(name = "myLegend", values=fill) +
+xlim(c(20,50))
+```
+
+## 1.4 The Gaussian distribution
+
+Use the help function to look up the following four functions: **`dnorm()`**, **`pnorm()`**, **`qnorm()`** and **`rnorm()`**. Also, the probability density function of a Gaussian random variable was introduced in Lecture 14.
+
+### 1.4 (Q1)
+
+Generate a plot which displays **the probability density function** for three Gaussian random variables $X_1 \sim N (\mu_1, \sigma_{1}^2)$, $X_2 \sim N (\mu_2, \sigma_{2}^2)$, and $X_3 \sim N (\mu_3, \sigma_{3}^2)$ with $\mu_1 = \mu_2 = \mu_3 = 1$ and $\sigma_{1}^2 = 1, \sigma_{2}^2 = 2, \sigma_{3}^{2} = 3$.
+
+```{r}
+mu<-1
+sigma1<-1
+sigma2<-sqrt(2)
+sigma3<-sqrt(3)
+gaussian_df<-data.frame(x=seq(-4,6,0.01))
+gaussian_df<-gaussian_df%>%
+  mutate(pdf1=map_dbl(.x=x,~dnorm(.x,mu,sigma1)))%>%
+  mutate(pdf2=map_dbl(.x=x,~dnorm(.x,mu,sigma2)))%>%
+  mutate(pdf3=map_dbl(.x=x,~dnorm(.x,mu,sigma3)))%>%
+  pivot_longer(c(pdf1,pdf2,pdf3),names_to="Variance",values_to = "value")
+print(gaussian_df)
+
+ggplot(data=gaussian_df,aes(x=x,y=value))+
+  xlab("x")+ylab("Density")+
+  geom_line(aes(color=Variance,linetype=Variance))+
+  xlim(c(-4,6))
+
+```
+
+### 1.4 (Q2)
+
+Generate a plot which displays **the cumulative distribution function** for three Gaussian random variables $X_1 \sim N (\mu_1, \sigma_{1}^2)$, $X_2 \sim N (\mu_2, \sigma_{2}^2)$, and $X_3 \sim N (\mu_3, \sigma_{3}^2)$ with $\mu_1 = \mu_2 = \mu_3 = 1$ and $\sigma_{1}^2 = 1, \sigma_{2}^2 = 2, \sigma_{3}^{2} = 3$.
+
+```{r}
+mu<-1
+sigma1<-1
+sigma2<-sqrt(2)
+sigma3<-sqrt(3)
+gaussian_disf<-data.frame(q=seq(-4,6,0.01))
+gaussian_disf<-gaussian_disf%>%
+  mutate(df1=map_dbl(.x=q,~pnorm(.x,mu,sigma1)))%>%
+  mutate(df2=map_dbl(.x=q,~pnorm(.x,mu,sigma2)))%>%
+  mutate(df3=map_dbl(.x=q,~pnorm(.x,mu,sigma3)))%>%
+  pivot_longer(c(df1,df2,df3),names_to="Variance",values_to = "value")
+print(gaussian_disf)
+
+ggplot(data=gaussian_disf,aes(x=q,y=value))+
+  xlab("x")+ylab("FX(x)")+
+  geom_line(aes(color=Variance,linetype=Variance))+
+  xlim(c(-4,6))
+```
+
+### 1.4 (Q3)
+
+Generate a plot for **the quantile function** for the same three Gaussian distributions as above. Describe the relationship between the quantile function and the cumulative distribution function.
+
+```{r}
+mu<-1
+sigma1<-1
+sigma2<-sqrt(2)
+sigma3<-sqrt(3)
+gaussian_pf<-data.frame(p=seq(0,1,0.01))
+gaussian_pf<-gaussian_pf%>%
+  mutate(pf1=map_dbl(.x=p,~qnorm(.x,mu,sigma1)))%>%
+  mutate(pf2=map_dbl(.x=p,~qnorm(.x,mu,sigma2)))%>%
+  mutate(pf3=map_dbl(.x=p,~qnorm(.x,mu,sigma3)))%>%
+  pivot_longer(c(pf1,pf2,pf3),names_to="Variance",values_to = "value")
+print(gaussian_pf)
+
+ggplot(data=gaussian_pf,aes(x=p,y=value))+
+  xlab("x")+ylab("FX(p)")+
+  geom_line(aes(color=Variance,linetype=Variance))+
+  xlim(c(0,1))
+```
+
+### 1.4 (Q4)
+
+Now use **`rnorm()`** to generate a random independent and identically distributed sequence $Z_1,..., Z_n \sim N (0, 1)$ so that each $Z_i \sim N (0, 1)$ has standard Gaussian distribution. Set $n = 100$. Make sure your code is reproducible by using the **`set.seed()`** function. Store your random sample in a vector called `"standardGaussianSample"`.
+
+```{r}
+set.seed(0)
+n<-100
+standardGaussianSample<-rnorm(n,0,1)
+print(standardGaussianSample)
+```
+
+### 1.4 (Q5)
+
+Suppose $Z \sim N (0, 1)$ is a Gaussian random variable. Take $\alpha, \beta \in R$ and let $W :\Omega \to R$ be the random variable given by $W = \alpha Z+\beta$. Then $W$ is also a Gaussian random variable. We will use this fact to create samples of Gaussian random variables from samples of standard Gaussian random variables.
+
+Use your existing sample stored in **`standardGaussianSample`** to generate a new sample of the form $Y_1,..., Y_n \sim N (1, 3)$ with expectation $\mu = 1$ and population variance $\sigma^2 = 3$. The i-th observation in this sample should be of the form $Y_i = \alpha \cdot Z_i + \beta$, for appropriately chosen $\alpha, \beta \in R$, where $Z_i$ is the i-th observation in the sample **`standardGaussianSample`**. Store the generated sample of $Y_1,..., Y_n$ in a vector called **`mean1Var3GaussianSampleA`**. So to answer this question you need to decide the value of $\alpha$ and $\beta$, such that $Y_i$ has the required expectation and variance.
+
+```{r}
+mean1Var3GaussianSampleA<-map_dbl(.x=standardGaussianSample,~(sqrt(3)*.x+1))
+print(mean1Var3GaussianSampleA)
+```
+
+### 1.4 (Q6)
+
+Reset the random seed to the same value as the one you used in (Q4) using the **`set.seed()`** function and generate an i.i.d. sample of the form $Y_1,..., Y_n \sim N (1, 3)$ using the **`rnorm()`** function. Store this sample in a vector called **`mean1Var3GaussianSampleB`**. Are the entries of the vectors **`mean1Var3GaussianSampleA`** and **`mean1Var3GaussianSampleB`** the same?
+
+```{r}
+mean1Var3GaussianSampleB<-rnorm(n,1,sqrt(3))
+print(mean1Var3GaussianSampleB)
+```
+
+### 1.4 (Q7)
+
+Now generate a graph which includes both a kernel density plot for your sample **`mean1Var3GaussianSampleA`** and a plot of the population density (the probability density function) generated using **`dnorm()`**. You can also include two vertical lines which display respectively the population mean and the sample mean.
+
+Some guidance for creating the plot: It would be helpful to look at the example provided in Section 1.3(Q4). You may want to use the **`geom_density()`** and **`geom_vline()`** functions. In particular, both **`geom_density()`** and **`geom_vline()`** have an argument called "data" that you may want to explore. Also, you can specify your own color by using the **`scale_color_manual`** and your own line type by **`scale_linetype_manual`**.
+
+```{r}
+gaussian1<-data.frame(x=mean1Var3GaussianSampleA)
+mean1<-map_dbl(.x=mean1Var3GaussianSampleA,~dnorm(.x,1,sqrt(3)))
+gaussian<-data.frame(disx=seq(-4,6,0.001))
+gaussian<-gaussian%>%mutate(mean1=map_dbl(.x=disx,~dnorm(.x,1,sqrt(3))))
+print(gaussian1)
+
+
+colors<-c("Population density"="red", "Sample kernel density"="blue","Population mean"="green","Sample mean"="pink")
+fill<-c("Population density"="white", "Sample kernel density"="white","Population mean"="white","Sample mean"="white")
+linetype<-c("Population density"="solid", "Sample kernel density"="dashed","Population mean"="solid","Sample mean"="dashed")
+ggplot() +
+  geom_density(data=gaussian1,aes(mean1Var3GaussianSampleA,color="Sample kernel density",linetype="Sample kernel density"))+
+  geom_line(data=gaussian,aes(x=disx,y=mean1,color="Population density"))+xlim(-4,6)+geom_vline(aes(xintercept=1,color="Population mean",linetype="Population mean"))+geom_vline(aes(xintercept=mean(mean1Var3GaussianSampleA),color="Sample mean",lintype="Sample mean"))+
+  scale_color_manual(name = "Legend", values=colors) +
+  scale_fill_manual(name = "Legend", values=fill)+
+  scale_linetype_manual(name="Legend",values=linetype)
+```
+
+### 1.4 (Q8)(\*)
+
+# 2. Location estimators with Gaussian data
+
+In this question we compare two estimators for the population mean $\mu_0$ in a Gaussian setting in which we have independent and identically distributed data $X_1, ..., X_n \sim N (\mu_0, \sigma_{0}^2)$.
+
+The following code generates a data frame consisting of the mean squared error of the sample median as an estimator of $\mu_0$.
+
+```{r}
+set.seed(0)
+num_trials_per_sample_size <- 1000
+min_sample_size <- 30
+max_sample_size <- 500
+sample_size_inc <- 5
+mu_0 <- 1
+sigma_0 <- 3
+
+# create data frame of all pairs of sample_size and trial
+simulation_df<-crossing(trial=seq(num_trials_per_sample_size),sample_size=seq(min_sample_size,max_sample_size,sample_size_inc)) %>%mutate(simulation=pmap(.l=list(trial,sample_size),
+.f=~rnorm(.y,mean=mu_0,sd=sigma_0))) %>%mutate(sample_md=map_dbl(.x=simulation,.f=median)) %>% group_by(sample_size) %>%summarise(msq_error_md=mean((sample_md-mu_0)^2))
+print(simulation_df)
+
+
+```
+
+## 2 (Q1)
+
+What is the population median of a Gaussian random variable $X_i \sim N (\mu_0, \sigma_{0}^2)$?
+
+## 2 (Q2)
+
+Modify the above code to include estimates of the **mean square error** of the sample mean. Your data frame **`simulation_df`** should have a new column called **`msq_error_mn`** which estimates the mean squared error of the sample mean as an estimator of $\mu_0$.
+
+```{r}
+set.seed(0)
+num_trials_per_sample_size <- 1000
+min_sample_size <- 30
+max_sample_size <- 500
+sample_size_inc <- 5
+mu_0 <- 1
+sigma_0 <- 3
+
+simulation_df<-crossing(trial=seq(num_trials_per_sample_size),sample_size=seq(min_sample_size,max_sample_size,sample_size_inc)) %>%
+  mutate(simulation=pmap(.l=list(trial,sample_size),
+.f=~rnorm(.y,mean=mu_0,sd=sigma_0))) %>%
+  mutate(sample_md=map_dbl(.x=simulation,.f=median)) %>% 
+  mutate(sample_mn=map_dbl(.x=simulation,.f=mean))%>%
+  group_by(sample_size) %>%
+  summarise(msq_error_md=mean((sample_md-mu_0)^2),msq_error_mn=mean((sample_mn-mu_0)^2))
+print(simulation_df)
+```
+
+Then generate a plot which includes both the **mean square error** of the **sample mean** and the **sample median** as a **function of the sample size.**
+
+```{r}
+simulation_df<-simulation_df%>% pivot_longer(c(msq_error_md,msq_error_mn),names_to="Estimator",values_to="Mean_square_error")
+ggplot(data=simulation_df,aes(x=sample_size,y=Mean_square_error))+xlab("Sample Size")+ylab("Mean square error")+geom_smooth(aes(color=Estimator,linetype=Estimator))
+```

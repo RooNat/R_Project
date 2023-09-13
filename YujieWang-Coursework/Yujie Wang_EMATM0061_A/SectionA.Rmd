@@ -1,0 +1,244 @@
+---
+title: "SectionA"
+author: "YujieWang"
+date: "`r Sys.Date()`"
+subtitle: EMATM0061,TB1 2022
+output: pdf_document
+---
+
+```{=tex}
+\newpage
+\tableofcontents
+\newpage
+```
+# Introduction
+
+This is the Section A, which includes eight parts to study the data wrangling with some finance data. The data wrangling is the process of transforming data from one form to another in preparation for another downstream task, it consists of 6 data wrangling operations-selecting, filtering, mutating, arranging, summarising, joining.The example is done with two important R packages including the `dplyr` package and the `tidyverse` package.
+
+# The solutions of Section A
+
+To finish the experiment,the "tidyverse" package should be loaded. The "tidyverse" package is a collection of R packages that are designed for data science.The "dplyr" package is an R package designed for data wrangling.
+
+```{r}
+library(tidyverse)
+library(dplyr)
+```
+
+## A.1
+
+Start by downloading the "finance_data_2022.csv" file,this file contains data about the cumulative commitments funds from the International Finance Corporation (IFC) as well as Loan & Guarantee participations, across different IFC regions and countries.
+
+Then, by using the function `read.csv()`, load the "finance_data_2022.csv" file into a R data frame called "data_original",the top ten columns of the data frame can be displayed below.It illustrated that the data frame has 8 columns which includes 'IFC.Region', 'Country', 'Loan\...Guarantee.participations. Cumulative.Commitments..US..Thousands.', 'TOTAL', 'Fiscal.Year', 'As.of.Date'.
+
+```{r}
+data_original<-read.csv("finance_data_2022.csv") # load a .csv file into R
+data_original%>%head(10) # return the top ten rows of data frame
+```
+
+By using the function `nrow()` and `ncol()`, the number of rows and columns of this data frame can be computed,it shows that the data frame has 1580 rows and 8 columns.
+
+```{r}
+data_original%>%nrow() # the number of rows
+data_original%>%ncol() #the number of columns
+```
+
+## A.2
+
+Before renaming the columns, the names of all columns could be shown by using the function `colnames()`.
+
+```{r}
+colnames(data_original) # show the names of all columns
+```
+
+Then, to generate a new data frame called "finance_data" with 5 columns by using the data frame "data_original", the function `select()` and the function `rename()` should be used.
+
+The function `select()` could selecting a subset of columns and generating a new dataset. In this case, the function `select()` could select the corresponding 5 columns and generate a new data frame called "finance_data".
+
+```{r}
+finance_data<-data_original%>%
+  rename(IFC=IFC.Region,   #rename the required columns
+         IFC_CC=IFC.Cumulative.Commitments..US..Thousands.,
+         Loan_Guarantee_CC=Loan...Guarantee.participations.Cumulative.Commitments..US..Thousands.,
+         Date=As.of.Date)%>%
+  select(IFC,IFC_CC,Country,Loan_Guarantee_CC,Date)  
+  # select the required columns to generate a new data frame called finance_data
+finance_data%>%head(10) # show the top ten rows of the new data frame
+```
+
+## A.3
+
+In this part, firstly, the case creates a new data frame called "data_part1" by choosing a subset of the data frame "finance_data".Using the function `filter()`, the case chooses the rows satisfying that the values of 'IFC_CC' are no less than 300000 and the values of 'Loan_Guarantee_CC' are no more than 500000 and then sorts the rows that the values in the column 'IFC_CC' are in descending order by using the function `arrange()`.
+
+Secondly, the case uses the function `head(4)` and the function `select()` to display a subset of the `data_part1`, which consists of the first 4 rows and the three columns 'IFC', 'IFC_CC', and 'Loan_Guarantee_CC'.
+
+```{r}
+data_part1<-finance_data%>%  #data_part1 from a subset of finance_data
+  filter(IFC_CC>=300000 & Loan_Guarantee_CC<=500000)%>% 
+  #choose the rows which IFC_CC>=300000 and Loan_Guarantee_CC <=500000
+  arrange(desc(IFC_CC)) 
+  #sort the rows that the values in the column IFC_CC are in descending order
+data_part1%>%
+  head(4)%>% # head(4) shows the first 4 rows of the data frame
+  select(IFC,IFC_CC,Loan_Guarantee_CC) # 'select()' shows the required three columns.
+```
+
+## A.4
+
+In this part, the case uses the function `mutate()` to create a new column 'IFC_ratio' for the data frame "finance_data". For each row of the data frame, the element of the 'IFC_ratio' column is computed by $\alpha/(\alpha + \beta)$ where $\alpha$ denotes the element of the 'IFC_CC' column, and $\beta$ denotes the element of the 'Loan_Guarantee_CC' column.
+
+The code chunk below shows the number of columns for the new data frame by using the function `ncol()`. It illustrates that the new data frame "finance_data" has 6 columns.
+
+```{r}
+finance_data<-finance_data%>% 
+  mutate(IFC_ratio=IFC_CC/(IFC_CC+Loan_Guarantee_CC)) # create a new column IFC_ratio
+finance_data%>%ncol() # show the number of columns
+```
+
+Finally, the case displays a subset of the data frame "finance_data" consisting of the first 5 rows and the 4 columns 'IFC', 'IFC_CC', and 'Loan \_Guarantee_CC' and 'IFC_ratio' by using the function `select()` and `head()`.
+
+```{r}
+finance_data%>%head(5)%>% 
+  # head(5) shows the first 4 rows of the data frame
+  select(IFC,IFC_CC,Loan_Guarantee_CC,IFC_ratio) 
+  # the function 'select()' shows the required four columns
+```
+
+## A.5
+
+In this part, the month and year are separated by the forward slash character '/'. This case uses the function `separate()` separates the 'Date' column into three columns called 'day','month','year',respectively. To make sure each of the 'day','month','year' columns is of numeric type rather than characters, the function `separate()` set 'convert=True' to convert columns into numeric types.
+
+Then, the case uses the function `head()` and `select()` to display a subset of the data frame "finance_data" consisting of the first 5 rows and the 4 columns 'IFC_CC','day','month', and 'year'.
+
+```{r}
+# the 'separate()' function separate the 'Date' column into three columns
+# "convert=TRUE" convert columns into numeric types
+finance_data<-finance_data%>%
+  separate(Date,into=c("day","month","year"),sep="/",convert=TRUE) 
+finance_data%>%
+  head(5)%>% # head(5) shows the first 5 rows of the data frame
+  select(IFC_CC,day,month,year) # 'select()' shows the required 4 columns.
+```
+
+## A.6
+
+Next generate a summary data frame called "summary_data" from the "finance_data".
+
+Firstly, the summary data frame should have 7 rows corresponding to the different IFC regions specified in the IFC column of "finance_data" by using the function `group_by()`.
+
+Secondly, the function `summarise()` is used to get the 7 columns:
+
+1.  'IFC' - The IFC regions: "East Asia and the Pacific", "Europe and Central Asia", "Latin America and the Caribbean", "Middle East and North Africa", "South Asia", "Sub- Saharan Africa", "Worldwide".
+
+    To get the the values of 'IFC', the case uses the function `group_by()`.
+
+2.  'ifc_mn' - the mean of "IFC Cumulative Commitments (US\$ Thousands)" for the corresponding IFC region.
+
+    The case uses the function `mean()` to get the values of 'ifc_mn'.
+
+3.  'ifc_21q' - the 0.21-quantile of "IFC Cumulative Commitments (US\$ Thousands)" for the corresponding IFC region.
+
+    The case uses the function `quantile()` to get the values of 'ifc_21q'.
+
+4.  'ifc_var' - the variance of "IFC Cumulative Commitments (US\$ Thousands)" for the corresponding IFC region.
+
+    The case uses the function `var()` to get the values of 'ifc_var'.
+
+5.  'lg_mn' - the mean of "Loan & Guarantee participations Cumulative Commitments (US\$Thousands)" for the corresponding IFC region.
+
+    The case uses the function `mean()` to get the values of 'lg_mn'.
+
+6.  'lg_21q' - the 0.21-quantile of "Loan & Guarantee participations Cumulative Commitments (US\$ Thousands)" for the corresponding IFC region.
+
+    The case uses the function `quantile()` to get the values of 'lg_21q'.
+
+7.  'lg_var' - the variance of "Loan & Guarantee participations Cumulative Commitments (US\$ Thousands)" for the corresponding IFC region.
+
+    The case uses the function `var()` to get the values of 'lg_var'.
+
+Note that the missing values(NA) should be removed when computing the summary data. To remove the missing values, the function `mean()`, `quantile()`, `var()` should set `na.rm` as `TRUE`.
+
+The data frame shown is the summary data frame.
+
+```{r}
+summary_data<-finance_data%>%
+  group_by(IFC)%>%  
+  # group the rows when summarize by the sepecies of IFC
+  summarise(ifc_mn=mean(IFC_CC,na.rm=TRUE),  
+            #summarise the mean of IFC_CC and remove the NA values
+            ifc_21q=quantile(IFC_CC,0.21,na.rm=TRUE), 
+            # get the 0.21-quantile value of IFC for corresponding IFC region
+            ifc_var=var(IFC_CC,na.rm=TRUE), # get variance
+            lg_mn=mean(Loan_Guarantee_CC,na.rm=TRUE), # get the mean values
+            lg_21q=quantile(Loan_Guarantee_CC,0.21,na.rm=TRUE), 
+            # get the 0.21-quantile values
+            lg_var=var(Loan_Guarantee_CC,na.rm = TRUE)) # get the variance values
+summary_data
+```
+
+## A.7
+
+In this part, the case would create a plot to display the "IFC Cumulative Commitments"("IFC_CC") and "Loan & Guarantee participations Cumulative Commitments" as functions of the years, for two different countries Argentina and Brazil, respectively.
+
+Firstly, the case creates a new data frame to get the subset of the "finance_data" by using the function `filter()`, `select()`, `mutate()` and `pivot_longer()`.
+
+```{r}
+subset_finance<-finance_data%>%
+  filter(Country=="Argentina"|Country=="Brazil")%>% 
+  # get the Argentina and Brazil country
+  select(Country,year,IFC_CC,Loan_Guarantee_CC)%>% 
+  # get the required columns
+  mutate(year=year-2000,IFC_CC=IFC_CC/1000,Loan_Guarantee_CC=Loan_Guarantee_CC/1000)%>%
+  #create a new column to get the last two digits of the years.
+  pivot_longer(cols=c(IFC_CC,Loan_Guarantee_CC),names_to="names",values_to="values") 
+  # narrow the data to create a plot
+subset_finance%>%head(10)
+```
+
+Finally, create the plot which has two panels.Using the function `facet_wrap()` to create two panels which are grouped by "Country".The Country includes "Argentina" and "Brazil".
+
+```{r}
+ggplot(subset_finance,aes(x=year,y=values,color=names))+ #create the plot
+  theme_bw()+
+  xlab("year")+
+  ylab("Cumulative Commitments (millions$)")+
+  geom_point()+ # create the point for the plot
+  facet_wrap(~Country) # create two panels grouped by Country
+```
+
+## A.8
+
+1.  Firstly,the case creates a function called `impute_by_quantile()` which takes as input a vector numerical values, which may include some "NA"s, and replaces any missing values ("NA"s) with the 0.9-quantile of the vector.
+2.  Next, the case applies the function `impute_by_quantile()` to each of the columns 'IFC_CC', 'Loan_Guarantee_CC', and 'IFC_ratio' in your data frame "finance_data". This aims to replace the missing values (NA) with the 0.9 quantile of the corresponding column, within the data frame "finance_data".
+
+```{r}
+# 1. create a function
+impute_by_quantile<-function(sample){
+  re<-quantile(sample,0,9,na.rm=TRUE) # compute the 0.9-quantile value.
+  impute_na<-function(x){ # create a function to replace the NA with 0.9-quantile value
+    if(is.na(x)){ # if the x is NA
+      return(re) # return the 0.9-quantile value
+    }else{
+      return(x)
+    }
+  }
+  return(map_dbl(.x=sample,.f=~impute_na(.x)))
+}
+
+#2. apply the function to data
+finance_data<-finance_data%>% 
+  mutate(IFC_CC=impute_by_quantile(IFC_CC),
+         Loan_Guarantee_CC=impute_by_quantile(Loan_Guarantee_CC),
+         IFC_ratio=impute_by_quantile(IFC_ratio))
+finance_data%>%head(10)
+```
+
+3.  Next, using the function `summarise()` displays a data frame of three columns ('IFC_CC', 'Loan_Guarantee_CC', and 'IFC_ratio') and 1 row. The 'IFC_CC' column should contain a single number representing the mean of the \'IFC_CC\' column of your data frame \'finance_data\'. The \'Loan_Guarantee_CC\' column should contain a single number representing the mean of the \'Loan_Guarantee_CC\' column of the data frame \"finance_data\". The \'IFC_ratio\' column should contain a single number representing the mean of the \'IFC_ratio\' column of the data frame \"finance_data\".
+
+```{r}
+# 3. display three columns
+finance_data%>%
+  summarise(IFC_CC=mean(IFC_CC), # get the mean of the 'IFC_CC' column
+            Loan_Guarantee_CC=mean(Loan_Guarantee_CC), 
+            # get the mean of the 'Loan_Guarantee_CC' column
+            IFC_ratio=mean(IFC_ratio)) #get the mean of the 'IFC_ratio' column
+```

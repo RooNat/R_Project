@@ -1,0 +1,210 @@
+---
+title: "Data Wrangling"
+author: "YujieWang"
+date: "`r Sys.Date()`"
+tags: R
+type: lecture
+Lecture: 4
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data Wrangling
+
+-   Basic wrangling operations：Selecting, filtering,mutating,arranging(sort),summarizing,joining...
+
+-   The data wrangling operations tools in R:
+
+    -   The package **dplyr**
+
+-   **Case study:the Palmer penguins data set**
+
+```{r}
+library(palmerpenguins)
+head(penguins)
+```
+
+### 1. Selecting columns
+
+**Select columns**
+
+```{r}
+library(dplyr)
+penguins2<-select(penguins,species,bill_length_mm,body_mass_g,flipper_length_mm)
+print(penguins2)
+```
+
+**remove several columns**
+
+```{r}
+penguins2_1<-select(penguins,-species,-bill_length_mm,-body_mass_g)
+print(penguins2_1)
+```
+
+### 2. Filtering rows
+
+Extracting a subset of rows(while the columns are unchanged)
+
+```{r}
+filter(penguins2,species=='Gentoo')
+```
+
+Add multiple conditions:use &
+
+```{r}
+filter(penguins2,species=='Gentoo' & body_mass_g>5000)
+```
+
+#### Combining filter & select functions
+
+The following statements are equivalent:
+
+```{r}
+select(filter(penguins2,species=='Gentoo'),species,bill_length_mm,body_mass_g)
+
+penguins2%>%filter(species=='Gentoo')%>%select(species,bill_length_mm,body_mass_g)
+
+```
+
+#### Simplifying codes with the pipe operater
+
+To chain multiple operations: x%\<% f1(a)%\<%f2(b)%\<%f3(c) = f3(f2(f1(x,a),b),c)
+
+### 3. Creating and renaming columns
+
+-   using *mutate()* function
+-   create a new column flipper_bill_radtio
+
+```{r}
+# create columns
+penguins2%>%mutate(flipper_bill_ratio=flipper_length_mm/bill_length_mm)
+```
+
+-   using *rename()* function
+
+```{r}
+# rename an existing column
+penguins2%>% rename(f_1_m=flipper_length_mm)
+```
+
+### 4. Sorting the rows
+
+-   using *arrange()* function
+-   in ascending order
+-   in descending order, with *desc()*
+
+```{r}
+penguins2 %>% arrange(bill_length_mm)
+```
+
+In desending order:
+
+```{r}
+penguins2%>% arrange(desc(bill_length_mm))
+```
+
+### 5. Summarizing data
+
+-   summarizing a data frame into just one value or a vector.
+-   eg. compute the mean,median（中间值）,sum,standard deviation...
+-   using *summarize()* function
+
+```{r}
+penguins2%>% summarize(num_rows=n(),avg_weight_kg=mean(body_mass_g/1000,na.rm=TRUE),avg_flipper_bill_ratio=mean(flipper_length_mm/bill_length_mm,na.rm=TRUE))
+```
+
+#### Group the rows when summarizing
+
+-   use the function **group_by()** function
+
+```{r}
+penguins2%>%group_by(species)
+```
+
+-   group and the summarize
+
+```{r}
+penguins2%>%group_by(species)%>%summarize(num_rows=n(),avg_weight_kg=mean(body_mass_g/1000,na.rm=TRUE),avg_flipper_bill_ratio=mean(flipper_length_mm/bill_length_mm,na.rm=TRUE))
+```
+
+#### Column-wise operations with across()
+
+suppose that we want to compute the number of NA(not available) values in each column, which can be done via: 计算NA的数量
+
+```{r}
+Num_NAs<-penguins2%>%summarize(species=sum(is.na(species)),bill_length_mm=sum(is.na(bill_length_mm)),body_mass_g=sum(is.na(body_mass_g)),flipper_length_mm=sum(is.na(flipper_length_mm)))
+print(Num_NAs)
+```
+
+-   Use across() to perform column-wise operations,执行结果与上面相同
+-   \~sum(is.na(.x)) id equivalent to function(x){(sum(is.na(x)))}
+
+```{r}
+Num_NAs<-penguins2%>%summarize(across(everything(),~sum(is.na(.x))))
+print(Num_NAs)
+```
+
+-   combine across() and where() to perform column-wise operations for a subset of columns
+
+```{r}
+penguins2%>% summarize(across(where(is.numeric),~mean(.x,na.rm=TRUE)))
+```
+
+Combine the summarize,group_by and across functions to perform Column-wise summarizing by groups \* \~mean(.x,na.rm=TRUE) is equivalent to function(x){mean(x,na.rm=TRUE)}
+
+```{r}
+penguins%>%select(-bill_length_mm)%>%group_by(species)%>%summarize(across(where(is.numeric),~mean(.x,na.rm=TRUE)))
+```
+
+### 6. Joining multiple data frames
+
+-   Combining multiple data frames
+-   using join() function
+
+```{r}
+# first step:create data frame 1
+penguin_bill_lengths_df<-penguins2%>%arrange(desc(bill_length_mm))%>%select(species,bill_length_mm)
+penguin_bill_lengths_df
+```
+
+```{r}
+# Second step:create data frame 2
+species<-unique(penguins2$species)
+latin_name<-c('Pygoscelis adeliae','Pygoscelis papua','Pygoscelis antarcticus')
+latin_names_df<-data.frame(species,latin_name)
+print(latin_names_df)
+```
+
+-   Join--Inner join
+
+```{r}
+# Finally, combine these two data frames with a join fucntion
+penguin_bill_lengths_df%>%inner_join(latin_names_df)
+
+
+#inner_join:只保留两表共有的关键字
+print(band_members)
+print(band_instruments)
+inner_join(band_members,band_instruments)
+```
+
+-   Join--Outer Join
+
+```{r}
+full_join(band_members,band_instruments)
+```
+
+-   Join--Left Join
+
+```{r}
+left_join(band_members,band_instruments)
+```
+
+-   Join--Right Join
+
+```{r}
+right_join(band_members,band_instruments)
+```

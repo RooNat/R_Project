@@ -1,0 +1,175 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+## Create a data frame
+
+The code chunk appears:
+
+```{r}
+animals<-c("Snake","Bird","Dog","Spider")
+animals
+```
+
+Type any R code in the chunk, for example:
+
+```{r}
+num_legs<-c(0,2,4,8)
+num_legs
+```
+
+```{r}
+animals_df<-data.frame(animals,num_legs)
+animals_df
+```
+
+## Check and delete objects
+
+Step1: use function \`ls()\` which returns a vector of character strings
+giving the names of the objects in the environment.
+
+```{r}
+ls()
+```
+
+Step2: use the function `rm()` to remove the objects `num_legs` from the
+working environment
+
+```{r}
+rm(num_legs)
+```
+
+Step3: Remove all objects in the working environment.
+
+```{r}
+rm(list=ls())
+```
+
+## Matrix operations
+
+Use the `seq()`\` function to generate a sequence of numbers starting at
+12 and decreasing to 2 in steps of -2. Call this vector
+`x_vect. You may want to run ?seq or help(seq)` to help you do this
+
+```{r}
+x_vect<-seq(12,2,-2)
+x_vect
+```
+
+Now convert the vector x vect into a matrix (with 2 rows and 3 coloumns)
+called X, using the matrix() function. The result should look like this:
+
+```{r}
+X<-matrix(x_vect,2,3)
+X
+```
+
+Next create a 2 by 2 matrix called Y consisting of a sequence of four
+numbers from 1-4. The matrix Y should look like this:
+
+```{r}
+Y<-matrix(seq(4),2,2)
+Y
+```
+
+In addition, create another 2 by 2 matrix called Z which looks as
+follows:
+
+```{r}
+Z<-matrix(seq(4,10,2),2,2)
+Z
+```
+
+Use the `t()` function to compute $Y^T$ and $Z^T$.
+
+```{r}
+YT<-t(Y)
+ZT<-t(Z)
+print(YT)
+print(ZT)
+```
+
+**Matrix sums**. Compute the matrix sums $Y+Z$ and $Z+Y$ . The result in
+both cases
+should be the same. We call such operations commutative. This means that
+reversing the order does not change the result.
+
+```{r}
+Y+Z
+```
+
+```{r}
+Z+Y
+```
+
+**Matrix multiplication**. Compute the matrix products $YZ$ and $ZY$
+
+(1) the results are not same
+
+(2) matrix multiplication is not commutative.
+
+```{r}
+result1<-Y%*%Z
+result2<-Z%*%Y
+result1
+result2
+```
+
+In addition, compute the matrix product $YX$ .
+
+```{r}
+result3<-Y%*%X
+result3
+```
+
+Try to compute the matrix product $XY$ . We get the error message
+because the non-conformable arguments
+
+```{r}
+result4<-X%*%Y
+result4
+```
+
+**3. Matrix element-wise multiplication**
+
+```{r}
+result4<-Y*Z
+result4
+```
+
+**4. Matrix inverse** get the result of $Y^{-1}$ via the `solve()`\`
+function:
+
+```{r}
+M_inverse<-solve(Y)
+M_inverse
+```
+
+Compute $Y^{-1}Y$ in R
+
+```{r}
+M_YY<-M_inverse%*%Y
+M_YY
+```
+
+Compute $Y^{-1}X$.
+
+```{r}
+M_YX<-M_inverse%*%X
+M_YX
+```
+
+### about solve()
+
+use ?solve() to check the usage of solve()
+
+```{r}
+result<-solve(Y,X)
+result
+```

@@ -1,0 +1,122 @@
+---
+title: "Data visualisation with R"
+author: "YujieWang"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+head(penguins)
+```
+## Types of variables
+1. *Continuous*:Numeric variables that can take any value on an interval.e.g.Bill length,Bill depth
+2. *Discrete*:Numeric variables for which there is a minimum gap between possible values.e.g.year the observation was recorded
+3. *Categorical*:Variables that can take on only a specific set of values representing distinct categories.e.g.species,island,etc.
+
+## Univariate plots
+
+```{r}
+univar_plot<-ggplot(data=penguins,aes(x=flipper_length_mm))+xlab("Flipper Length(mm)")
+univar_plot+geom_histogram(binwidth=5)+ylab("Count")
+
+```
+```{r}
+univar_plot+geom_density(adjust=1)+ylab('Density')
+```
+
+## Bivariate plots
+* 其中theme_bw()是主题模板
+
+```{r}
+ggplot(data=rename(penguins,Species=species),aes(x=flipper_length_mm,color=Species))+
+  geom_density()+
+  theme_bw()+
+  xlab("Flipper length(mm)")+
+  ylab("Density")
+```
+```{r}
+ggplot(data=penguins,aes(x=flipper_length_mm,y=species))+
+  geom_boxplot()+
+  xlab('Flipper length(mm)')+
+  ylab("Penguin species")
+```
+
+
+```{r}
+ggplot(data=rename(penguins,Species=species),aes(x=flipper_length_mm,y=Species,fill=Species))+
+  geom_violin()+
+  theme_bw()+
+  xlab("Flipper length()")
+```
+
+* Points
+```{r}
+mass_flipper_scatter<-ggplot(data=penguins,aes(y=body_mass_g,x=flipper_length_mm))+
+  xlab("Flipper length(mm)")+
+  ylab("Body mass(g)")
+mass_flipper_scatter+geom_point(size=3)
+```
+
+## Multivariate plots
+
+```{r}
+mass_flipper_scatter+
+  geom_point(aes(color=bill_length_mm,size=3))+
+  scale_color_gradient(low="blue",high="red")+
+  guides(color=guide_legend("Bill length(mm)"))
+```
+
+```{r}
+mass_flipper_scatter+
+  geom_point(aes(color=bill_length_mm,size=bill_depth_mm))+
+  scale_color_gradient(low="blue",high="red")+
+  guides(color=guide_legend("Bill length(mm)"),size=guide_legend("Bill depth(mm)"))
+```
+
+```{r}
+mass_flipper_scatter+geom_point(aes(color=species,shape=species))
+```
+
+```{r}
+mass_flipper_scatter+
+  geom_text(aes(label=species,color=species))+
+  guides(color=guide_legend("Species"))
+```
+
+## Facets
+* leverage the function **facet_wrap()** to create multiple panels
+```{r}
+mass_flipper_scatter+geom_point()+facet_wrap(~species)
+```
+
+## Trend lines
+```{r}
+trend_plot<-ggplot(data=filter(penguins,species=='Gentoo'),aes(y=body_mass_g,x=flipper_length_mm))+
+  xlab("Flipper length(mm)")+
+  ylab("Body mess(g)")+
+  geom_point()
+trend_plot+geom_smooth()
+```
+
+```{r}
+trend_plot+geom_smooth(method="lm")
+```
+
+## Annotation
+```{r}
+min(filter(penguins,species=='Gentoo')$body_mass_g,na.rm=TRUE)
+```
+
+```{r}
+trend_plot+
+  geom_smooth(method="lm")+
+  geom_curve(x=220,xend=209,y=4250,yend=3975,arrow=arrow(length=unit(0.5,'cm')),curvature=0.1)+
+  geom_text(x=225,y=4250,label="The lightest Gentoo \n penguin weighs 39.5 kg")
+```
+

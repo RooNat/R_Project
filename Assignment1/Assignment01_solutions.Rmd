@@ -1,0 +1,170 @@
+---
+title: "Assignment 1 Solution"
+author: "SCEM"
+date: "2022-10-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1. Create a data frame
+
+Run the following code in Console:
+
+```{r}
+animals <- c( "Snake", "Ostrich", "Cat", "Spider") # vector of city names
+num_legs <- c(0, 2, 4, 8) # vector of populations
+animals_df <-data.frame(animals,num_legs) # generating data frame
+animals_df
+```
+
+## 2. Check and delete objects
+
+## 3. Create a data frame in R Scripts
+
+## 4. Create a data frame in R Markdown
+
+Step 1. Insert a block of R code.
+
+```{r}
+animals <- c( "Snake", "Ostrich", "Cat", "Spider") # vector of city names
+num_legs <- c(0, 2, 4, 8) # vector of populations
+animals_df <-data.frame(animals,num_legs) # generating data frame
+```
+
+Step 2. Insert another block of code to print animals df.
+
+```{r}
+animals_df
+```
+
+## 5. Matrix operations
+
+Use the seq() function to generate a sequence of numbers starting at 12 and decreasing to 2 in steps of -2.
+
+```{r}
+x_vect = seq(12,2,-2)
+print(x_vect)
+```
+
+Now convert the vector x vect into a matrix (with 2 rows and 3 coloumns) called X, using the matrix() function
+
+```{r}
+X = matrix(x_vect, nrow = 2, ncol = 3)
+print(X)
+```
+
+Next create a 2 by 2 matrix called Y consisting of a sequence of four numbers from 1-4. The matrix Y should look like this
+
+```{r}
+Y = matrix(seq(4), 2, 2)
+print(Y)
+```
+
+In addition, create another 2 by 2 matrix called Z which looks as follows:
+
+```{r}
+Z = matrix(c(4,6,8,10), 2,2)
+print(Z)
+```
+
+Matrix sums.
+
+```{r}
+print(Y+Z)
+print(Z+Y)
+```
+
+Matrix multiplication.
+
+```{r}
+print(Y %*% X)
+```
+
+Matrix element-wise multiplication.
+
+```{r}
+print(Y*Z)
+print(Z*Y)
+```
+
+**Answer** Element-wise multiplication is commutative.
+
+Matrix inverse.
+
+Compute the matrix inverse Y −1 via the solve() function:
+
+```{r}
+solve(Y)
+```
+
+Next, check what you get from computing $Y^{−1}Y$ in R.
+
+```{r}
+print(Y %*% solve(Y))
+```
+
+**Answer** It is an identity matrix.
+
+Now compute $Y^{−1}X$. Your result should look like this
+
+```{r}
+print(solve(Y) %*% X)
+```
+
+Can you do this without first computing $Y^−1$? Try running the help command on the solve() function by typing ?
+
+```{r}
+solve(Y, X)
+```
+
+## 6. Writing a function within R
+
+You will need to create an R script and put in the following code:
+
+Step 1. Within your script create a short function called myFirstRFunc which takes in a single numerical argument n and outputs the sum of all those numbers strictly below n which are divisible by either 2 or 7 or both.
+
+```{r}
+myFirstRFunc <- function(n){
+  num <- 0
+  for (i in 1:(n-1)){
+    if (i%%2==0){
+      num <- num + i
+    } else if (i%%7==0){
+      num <- num + i
+    }
+  }
+  return (num)
+}
+```
+
+```{r}
+print(myFirstRFunc(1000))
+```
+
+## 7 Further R Markdown exercises
+
+Step 1. Within your R markdown insert a section heading called "Wave plot.
+
+Here is the section heading: \# Wave plot
+
+Step 2. Insert a code block to do the following.
+
+```{r}
+x = seq(0, 20, 0.01)
+y = sin(x)
+sin_df = data.frame(x,y)
+head(sin_df,3)
+```
+
+```{r}
+plot(sin_df)
+```
+
+Step 3. Insert the following mathematical formula into your Markdown file. $$
+\sin^2(x) + \cos^2(x) = 1
+$$
+
+## 8 Version control with RStudio and git

@@ -1,0 +1,149 @@
+---
+title: "Assignment7"
+author: "YujieWang"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+# 1. Maximum likelihood estimates
+
+## 1.1 Maximum likelihood estimates for Red tailed hawks
+
+```{r}
+library(Stat2Data)
+data("Hawks")
+Hawks%>%head(3)
+```
+
+### (Q1)
+
+```{r}
+RedTailedDf<-Hawks%>%filter(Species=="RT")%>%select(Weight,Tail,Wing)
+RedTailedDf%>%head(5)
+```
+
+### (Q2)
+
+```{r}
+Tail<-RedTailedDf%>%pull(Tail)
+n<-length(Tail)
+mu_mle<-mean(Tail,na.rm=TRUE)
+sigma_mle<-sd(Tail,na.rm=TRUE)*sqrt((n-1)/n)
+print(mu_mle)
+print(sigma_mle)
+```
+
+### (Q3)
+
+```{r}
+weights<-seq(mu_mle-3*sigma_mle,mu_mle+3*sigma_mle,sigma_mle*0.001)
+
+colors<-c("MLE density"="red","Kernel density"="blue") #set color legend
+
+estimated_density=data.frame(Length=weights,Density=dnorm(weights,mean=mu_mle,sd=sigma_mle))
+plot_obj<-ggplot()+geom_line(data=estimated_density,aes(x=Length,y=Density,color="MLE density"))
+
+#5.2 kernel density plot of the sample
+plot_obj+geom_density(data=tibble(Tail),aes(x=Tail,color="Kernel density"))+
+  labs(y="Tail length",color="colour")+theme_bw()+scale_color_manual(values=colors)
+```
+
+## 1.2 Unbiased estimation of the population variance
+
+### (Q1)
+
+```{r}
+set.seed(0)
+num_trials_per_sample_size<-1000
+min_sample_size<-5
+max_sample_size<-100
+mu <- 1 #True mu
+sigma_sqr <- 9  # sigma^2
+
+#1. create data frame of all pairs of sample_size and trial
+df<-crossing(trial=seq(num_trials_per_sample_size),
+             sample_size=seq(from=min_sample_size,to=max_sample_size,by=5))
+
+#2. For each pair,simulate a sequence of Gaussian random variables
+df<-mutate(df,simulation=pmap(.l=list(trial,sample_size),
+                              .f=~rnorm(.y,mean=mu,sd=sqrt(sigma_sqr))))
+
+#3. For each sequence, compute the sample variance
+sim_by_n_df<-mutate(df,sample_var=map_dbl(.x=simulation,.f=~var(.x)))
+
+#4.1 create a scatter plot of sample variance
+plot_obj<-ggplot()+labs(x="Sample size",y="Variance")+theme_bw()+
+  geom_point(data=sim_by_n_df,
+             aes(x=sample_size,y=sample_var,color="Sample",
+                 linetype="Sample"),size=0.1)
+
+#4.2 add a horizontal line displaying population variance
+plot_obj<-plot_obj+geom_hline(aes(yintercept=sigma_sqr,color="Population",
+                                  linetype="Population"),size=1)
+
+#4.3 add Legends
+plot_obj+
+  scale_color_manual(name="Legend",values=c("Sample"="blue","Population"="red"))+
+  scale_linetype_manual(name="Legend",values=c("Sample"="dashed","Population"="solid"))+
+  scale_x_sqrt()
+```
+
+### (Q2)
+
+### (Q3)（\*optional）
+
+## 1.3 Maximum likelihood estimation with the Poisson distribution
+
+### (Q1)
+
+### (Q2)
+
+### (Q3)
+
+### (Q4)
+
+### (Q5)(\*optional)
+
+## 1.4 Maximum likelihood estimation for the exponential distribution
+
+### (Q1)
+
+### (Q2)
+
+### (Q3)
+
+### (Q4)
+
+# 2. Confidence intervals
+
+## 2.1 Student's t-confidence intervals
+
+### (Q1)
+
+### (Q2)
+
+### (Q3)
+
+## 2.2 Investigating coverage for Student's intervals
+
+### (Q1)
+
+### (Q2)
+
+# 3. One Sample hypothesis testing
+
+## 3.1 One sample t-test on penguins data
+
+### (Q1)
+
+## 3.2 Implementing a one-sample t-test
+
+### (Q1)

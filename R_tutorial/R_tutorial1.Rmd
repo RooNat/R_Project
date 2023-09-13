@@ -1,0 +1,201 @@
+---
+title: "R_tutorial1"
+author: "YujieWang"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  word_document: default
+---
+
+## Learn R Programming
+
+```{r}
+n<-floor(rnorm(10000,500,100))
+t<-table(n)
+barplot(t)
+```
+
+
+```{r}
+n<-floor(rnorm(10000,500,100))
+n
+```
+## Normal distribution
+```{r}
+barplot(table(floor(rnorm(10000,500,100))),xlab="Numbers",ylab="Frequences")
+```
+```{r}
+typeof(5L)
+```
+```{r}
+typeof(5i)
+```
+
+```{r}
+typeof(5)
+```
+```{r}
+x<-3
+y<-14
+x+y
+```
+
+
+```{r}
+x-y
+```
+```{r}
+x*y
+```
+```{r}
+y/x
+```
+```{r}
+y%%x
+```
+```{r}
+y%/%x
+```
+```{r}
+y^x
+```
+```{r}
+x<-c(10,2,5)
+x
+```
+```{r}
+y<-c(6,4,1)
+y
+```
+```{r}
+x+y
+```
+```{r}
+x>y
+```
+```{r}
+x<-c(2,1,8,3)
+y<-c(9,4) #Element of y is recycled to 9,4,9,4
+x+y
+```
+```{r}
+x-1
+```
+```{r}
+x+c(1,2,3)
+```
+```{r}
+x<- -5
+y<-if(x>0) 5 else 6
+y
+```
+```{r}
+a=c(5,7,2,9)
+ifelse(a%%2==0,"even","odd")
+```
+
+```{r}
+x <- c(TRUE,FALSE,0,6)
+y <- c(FALSE,TRUE,FALSE,TRUE)
+x&y
+x&&y
+```
+```{r}
+x&&y
+```
+
+
+```{r}
+x<-c(2,5,3,9,8,11,6)
+count<-0
+for(val in x){
+  if(val%%2==0) count=count+1
+}
+count
+```
+```{r}
+x<-1:5
+for(val in x){
+  if(val==3){
+    next
+  }
+  print(val)
+}
+```
+```{r}
+x<-1
+repeat{
+  print(x)
+  x=x+1
+  if(x==6){
+    break
+  }
+}
+```
+```{r}
+pow<-function(x,y){
+  result<-x^y
+  print(paste(x,"raised to the power",y,"is",result))
+}
+pow(8,2)
+pow(2,8)
+```
+```{r}
+pow(8,2)
+pow(x=8,y=2)
+pow(y=2,x=8)
+```
+```{r}
+pow(x=8,2)
+pow(2,x=8)
+```
+
+```{r}
+pow(3,3)
+```
+```{r}
+pow<-function(x,y=2){
+  result<-x^y
+  print(paste(x,"raised to the power",y,"is",result))
+}
+pow(3)
+```
+```{r}
+pow(3,1)
+```
+```{r}
+outer_func<-function(){
+inner_func<-function(){
+a<<-30
+print(a)
+}
+inner_func()
+print(a)
+}
+outer_func()
+```
+```{r}
+print(a)
+```
+
+## R recursive function
+```{r}
+recursive.factorial<-function(x){
+  if(x==0) return(1)
+  else return (x*recursive.factorial(x-1))
+}
+```
+```{r}
+recursive.factorial(3)
+```
+```{r}
+'%divisible%'<-function(x,y){
+  if(x%%y==0) return(TRUE)
+  else return (FALSE)
+}
+```
+```{r}
+10%divisible%3
+```
+
+
