@@ -33,10 +33,12 @@ Transforming data with data wrangling operations:
 
 We will do the examples with two important R packages
 1. *The `dplyr` package* 
+
 	- An R package designed for **data wrangling**
 	- data wrangling APIs, such as:
 		- *selecting(), filtering(), mutating()...* 
 2. *The `tidyverse` package*
+
 	- A collection of R packages that are designed for data science
 	- Including:
 		- *`ggplot2`* : a package for visualisation
@@ -270,7 +272,7 @@ print(latin_names_df)
 		<td>band_instruments</td>
 	</tr>
 	<tr>
-		
+
 			<img src="https://raw.githubusercontent.com/RooNat/Myimages/main/2022/11/upgit_20221127_1669577013.png">
 		
 	</tr>

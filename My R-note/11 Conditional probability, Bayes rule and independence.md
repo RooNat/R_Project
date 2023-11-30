@@ -18,9 +18,9 @@ Bag1: 49 <font color=#c10b26>red</font> spheres + 1 <font color=#0b39c1>blue</fo
 Bag2: 1 <font color=#c10b26>red</font> sphere + 49 <font color=#0b39c1>blue</font> spheres 
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/25489537/1666723190025-f7b4269e-b6b5-43ff-81ff-e6b45328546f.png#averageHue=%23f5f0ed&clientId=u924a4e26-b8c6-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=141&id=ua39858a6&margin=%5Bobject%20Object%5D&name=image.png&originHeight=282&originWidth=777&originalType=binary&ratio=1&rotation=0&showTitle=false&size=105718&status=done&style=none&taskId=u08d6575f-4517-40aa-b9ae-7ed056ee87a&title=&width=388.5)
 >[!question] Question: 
-Given that the coin lands "**tails-up**", what is probability that a red sphere is drawn?
+Given that the coin lands "**tails-up**", what is the probability that a red sphere is drawn?
 $\mathbb{P}(\text{a\: red\: sphere\: is\: drawn}| \text{the\: coin\: landed\: "tails-up"})=1/50$
-As the picture show:
+As the picture shows:
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/25489537/1666724236996-030e25be-10d0-4661-99d5-fec07fa23aaa.png#averageHue=%23f0f0f0&clientId=u924a4e26-b8c6-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=89&id=u860f02c0&margin=%5Bobject%20Object%5D&name=image.png&originHeight=285&originWidth=1733&originalType=binary&ratio=1&rotation=0&showTitle=false&size=158390&status=done&style=none&taskId=u394faf22-d086-4960-a6a3-515a5f3be4a&title=&width=543)
 A: the event that a red sphere is drawn={1,....,49,51}
 B: the event that the coin landed "tails-up" + a red sphere is drawn={51}
@@ -70,10 +70,12 @@ Since $\mathbb{Q}:=\mathbb{P}(\cdot |B)$ defines a probability, the following pr
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/25489537/1666734231503-4682b484-1622-4a98-a37f-4044a3c115b1.png#averageHue=%23e9e9e9&clientId=u924a4e26-b8c6-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=36&id=u74de82b8&margin=%5Bobject%20Object%5D&name=image.png&originHeight=131&originWidth=2165&originalType=binary&ratio=1&rotation=0&showTitle=false&size=66205&status=done&style=none&taskId=u3b3be00e-2f25-4f2a-ba14-5ecbf758869&title=&width=592)
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/25489537/1666734250241-fcf2fd41-4bc9-4bfd-bdd8-c345b84eb2ac.png#averageHue=%23e5e5e5&clientId=u924a4e26-b8c6-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=22&id=u819cf60e&margin=%5Bobject%20Object%5D&name=image.png&originHeight=75&originWidth=2011&originalType=binary&ratio=1&rotation=0&showTitle=false&size=43860&status=done&style=none&taskId=u63346b78-cd6b-4a96-a8a1-4bddcb835e6&title=&width=594)
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/25489537/1666734263957-9221fcdb-89de-451f-b3d7-17b379fef5d8.png#averageHue=%23f2f2f2&clientId=u924a4e26-b8c6-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=65&id=u7dbe5e2b&margin=%5Bobject%20Object%5D&name=image.png&originHeight=217&originWidth=1923&originalType=binary&ratio=1&rotation=0&showTitle=false&size=62963&status=done&style=none&taskId=u3bcdb8da-9792-4944-a0d7-8ac537416dc&title=&width=576)
+
 #### Example2: A patient tests positive for a mediacal condition
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/25489537/1666734286145-513a158a-462d-4d24-b1ef-6bfe8076aeb9.png#averageHue=%23e3e3e3&clientId=u924a4e26-b8c6-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=41&id=ud153011b&margin=%5Bobject%20Object%5D&name=image.png&originHeight=130&originWidth=1567&originalType=binary&ratio=1&rotation=0&showTitle=false&size=56076&status=done&style=none&taskId=uc5141dc8-5beb-41f3-bd32-744fc4fabaf&title=&width=489)
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/25489537/1666734943327-e257c7f5-9f88-4886-85d4-b0da6dd51174.png#averageHue=%23f1f1f0&clientId=u924a4e26-b8c6-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=201&id=u45879020&margin=%5Bobject%20Object%5D&name=image.png&originHeight=402&originWidth=1172&originalType=binary&ratio=1&rotation=0&showTitle=false&size=381319&status=done&style=none&taskId=u5bf5db02-52e1-416b-be15-25fe4bae08c&title=&width=586)
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/25489537/1666735004691-69e17047-75f6-4e1a-8a64-43825e528cd2.png#averageHue=%23e8e7e6&clientId=u924a4e26-b8c6-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=324&id=u9498557b&margin=%5Bobject%20Object%5D&name=image.png&originHeight=648&originWidth=1194&originalType=binary&ratio=1&rotation=0&showTitle=false&size=527854&status=done&style=none&taskId=u2ce227bb-750b-4b3a-a30a-c510a01fecb&title=&width=597)
+
 ## Independence and dependence
 Events in the real world often exhibit interesting dependencies upon another.
 >[!note] Independence and dependence
@@ -130,7 +132,7 @@ $$\mathbb{P}(A_{i_1}\cap A_{i_2})=\mathbb{P}(A_{i_1})\mathbb{P}(A_{i_2})$$
 #### Remarks
 1. Mutual-independency implies pairwise-independency, but pairwise-independency does not imply mutual-independency.
 2. For sequence $A_1,A_2,...,A_n$ independency typically refers to mutual-independency.
-#### Example:Rolling a dice for three times
+#### Example: Rolling a dice for three times
 Suppose we roll a fair dice and record which faces land up
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/25489537/1666737607419-c7fc9904-b581-46fc-8366-7b7f23311582.png#averageHue=%23f1f1f1&clientId=u924a4e26-b8c6-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=255&id=ub4129acb&margin=%5Bobject%20Object%5D&name=image.png&originHeight=510&originWidth=1130&originalType=binary&ratio=1&rotation=0&showTitle=false&size=178366&status=done&style=none&taskId=u344e3b3a-a181-45c4-be3a-ae671750691&title=&width=565)
 
